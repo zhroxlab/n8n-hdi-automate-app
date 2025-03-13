@@ -1,5 +1,5 @@
 {
-  "name": "automate-base-cuadreTira",
+  "name": "automate-base",
   "nodes": [
     {
       "parameters": {
@@ -8,8 +8,8 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.8,
       "position": [
-        -380,
-        -160
+        -460,
+        -260
       ],
       "id": "ac889c78-bfec-49b4-a2e1-d3fee98d2802",
       "name": "AI Agent",
@@ -29,8 +29,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        -520,
-        80
+        -680,
+        20
       ],
       "id": "25056c7a-15cb-4d12-9925-e16e841a7bdb",
       "name": "OpenAI Chat Model",
@@ -46,8 +46,8 @@
       "type": "@n8n/n8n-nodes-langchain.toolCalculator",
       "typeVersion": 1,
       "position": [
-        60,
-        120
+        -80,
+        -20
       ],
       "id": "a088ab95-b4ca-46ce-a13d-c7dd1395f318",
       "name": "Calculator"
@@ -60,8 +60,8 @@
       "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
       "typeVersion": 1.3,
       "position": [
-        -380,
-        160
+        -540,
+        20
       ],
       "id": "08758da5-289e-4855-89c5-727d93f8a012",
       "name": "Postgres Chat Memory",
@@ -74,40 +74,29 @@
     },
     {
       "parameters": {
-        "name": "CalculadoraATM"
+        "name": "CalculadoraATM",
+        "language": "python",
+        "pythonCode": "# Example: convert the incoming query to uppercase and return it\nimport openpyxl\n\ndef leer_excel(ruta_archivo, data_only=False):\n    libro = openpyxl.load_workbook(ruta_archivo, data_only=data_only)\n    return libro\n\ndef obtener_valor_celda(libro, nombre_hoja, celda):\n    hoja = libro[nombre_hoja]\n    valor = hoja[celda].value\n    return valor\n\ndef editar_celda(libro, nombre_hoja, celda, nuevo_valor):\n    hoja = libro[nombre_hoja]\n    hoja[celda].value = nuevo_valor\n    return libro\n\ndef guardar_excel(libro, ruta_archivo):\n    libro.save(ruta_archivo)\n\n# Ejecucion... \n\nruta_archivo = './Calculadora Dispensadores.xlsx'\n\n# Obtener valores\nlibro_lectura = leer_excel(ruta_archivo, data_only=True)\nvalor_H189 = obtener_valor_celda(libro_lectura, 'Calculadora DISP', 'H189')\nvalor_H195 = obtener_valor_celda(libro_lectura, 'Calculadora DISP', 'H195')\nprint(f'Valor en H190: {valor_H189}')\nprint(f'Valor en H191: {valor_H195}')\n\n# Leer el archivo nuevamente sin data_only para editarlo\nlibro_edicion = leer_excel(ruta_archivo)\n\n# Editar valores \nlibro_edicion = editar_celda(libro_edicion, 'Calculadora DISP', 'H189', '185.000.000')\nlibro_edicion = editar_celda(libro_edicion, 'Calculadora DISP', 'H195', '205.000.000')\nprint('Celdas editadas')\n\n# Guardar los cambios\nguardar_excel(libro_edicion, ruta_archivo)\nprint('Archivo guardado')\n\n# Obtener valores \nlibro_lectura = leer_excel(ruta_archivo, data_only=True)\nvalor_H189 = obtener_valor_celda(libro_lectura, 'Calculadora DISP', 'H189')\nvalor_H195 = obtener_valor_celda(libro_lectura, 'Calculadora DISP', 'H195')\nprint(f'Valor en H189: {valor_H189}')\nprint(f'Valor en H195: {valor_H195}')\n\n\n\nreturn query.upper()"
       },
       "type": "@n8n/n8n-nodes-langchain.toolCode",
       "typeVersion": 1.1,
       "position": [
-        -240,
-        180
+        -380,
+        60
       ],
       "id": "f6cf6d9f-3fe2-4581-bc87-fbb73a1b4223",
       "name": "CalculadoraATM"
     },
     {
       "parameters": {
-        "name": "BuscarData"
-      },
-      "type": "@n8n/n8n-nodes-langchain.toolCode",
-      "typeVersion": 1.1,
-      "position": [
-        -80,
-        160
-      ],
-      "id": "e3c3a7a0-3cfc-411f-aee3-39f12e3e6ad2",
-      "name": "BuscarData"
-    },
-    {
-      "parameters": {
-        "fileSelector": "/Users/imfabra/Developer/repos/n8n/data/_gestion/inSara.xlsx",
+        "fileSelector": "./data/_gestion/inSara.xlsx",
         "options": {}
       },
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
       "position": [
-        -1320,
-        -140
+        -1740,
+        -280
       ],
       "id": "c77a83df-ecb8-42ed-96d1-84d84df3679c",
       "name": "LeerDocGestion"
@@ -117,71 +106,24 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -1560,
-        -140
+        -2000,
+        -280
       ],
       "id": "6be7b31e-9ec8-43f4-9b67-6cdd5c92be26",
       "name": "Inicio"
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "09d8a0a8-8daf-4a79-aaa2-b405b94f1fdc",
-              "leftValue": "={{ $json['CÓDIGO'] }}",
-              "rightValue": 8141,
-              "operator": {
-                "type": "number",
-                "operation": "equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        -840,
-        -140
-      ],
-      "id": "e8e9b8bb-5f0b-456f-a7ff-f0d5ea501b89",
-      "name": "FiltroATM"
-    },
-    {
-      "parameters": {
-        "jsCode": "// Entrada: Los datos JSON provienen del nodo anterior\nconst jsonData = $input.first().json; // Asumiendo que el JSON filtrado se pasa como entrada\n\n// Prompt personalizado en español para generar un JSON con puntos clave\nconst customPrompt = `\nEres un asistente de IA especializado en procesar datos de cajeros automáticos (ATMs). A continuación, se te proporciona un registro JSON con información financiera y operativa de un cajero automático. Tu tarea es extraer los puntos clave de este registro y devolverlos en un formato JSON estructurado. No proporciones texto narrativo, solo genera un JSON con la siguiente estructura:\n\n{\n  \"cajero\": {\n    \"codigo\": <valor>,\n    \"nombre\": <valor>,\n    \"ciudad\": <valor>\n  },\n  \"fecha\": <valor>,\n  \"diferencia\": {\n    \"monto\": <valor>,\n    \"estado\": <valor>,\n    \"tipo\": <valor>,\n    \"sobrante\": <valor>\n  },\n  \"valores_financieros\": {\n    \"contadores\": <valor>,\n    \"contabilidad\": <valor>,\n    \"remanentes\": <valor>,\n    \"provisiones\": <valor>\n  },\n  \"responsable\": <valor>,\n  \"observacion\": <valor>,\n  \"recomendacion\": <valor>\n}\n\nAquí está el registro JSON a procesar:\n\n${JSON.stringify(jsonData, null, 2)}\n\nDevuelve únicamente el JSON resultante, sin explicaciones adicionales.\n`;\n\n// Salida: Devuelve el prompt personalizado como la nueva entrada para el Agente de IA\nreturn [{\n  json: {\n    chatInput: customPrompt,\n    myVar: 23\n  }\n}];"
+        "jsCode": "// Entrada: Los datos JSON provienen del nodo anterior\nconst jsonData = $input.first().json; // Asumiendo que el JSON filtrado se pasa como entrada\n\n// Prompt personalizado en español con reglas mejoradas\nconst customPrompt = `\nEres un asistente de IA especializado en procesar datos de cajeros automáticos (ATMs). A continuación, se te proporciona un registro JSON con información financiera y operativa de un cajero automático. Tu tarea es procesar este registro según las siguientes reglas mejoradas y devolver un JSON actualizado con los campos necesarios. No proporciones texto narrativo ni explicaciones, solo genera el JSON resultante con todos los campos del JSON de entrada, actualizando únicamente los campos indicados por las reglas.\n\n**Reglas Mejoradas**\n\n1. **Consulta del histórico para validar la fecha de inicio del ciclo**:\n   - Utiliza la herramienta BuscarDocHistorico para buscar la \"FECHA INICIO CICLO\" del cajero, usando el valor del campo \"CÓDIGO\" (${jsonData[\"CÓDIGO\"]}) como identificador.\n   - Si la herramienta devuelve un resultado válido con un valor numérico, úsalo para mantener el campo \"FECHA INICIO CICLO\". Si no se encuentra el documento, no devuelve un valor numérico o falla, activa la excepción.\n\n2. **Obtención del valor del remanente**:\n   - Toma el valor del campo \"REMANENTES\" directamente del JSON de entrada (${jsonData[\"REMANENTES\"]}).\n\n3. **Cálculo del remanente con la herramienta CalculadoraATM**:\n   - Usa la herramienta CalculadoraATM, enviándole el valor de \"REMANENTES\" obtenido en el paso anterior. Almacena el resultado para el siguiente paso.\n\n4. **Comparación con la diferencia y lógica de decisión**:\n   - Compara el resultado de CalculadoraATM con el valor del campo \"DIFERENCIA\" (${jsonData[\"DIFERENCIA\"]}):\n     - Si son **iguales**:\n       - \"JUSTIFICACIÓN\" = \"FÍSICO\"\n       - \"RATIFICAR Y GRABAR DIFERENCIA\" = \"SÍ\"\n       - \"NUEVO ESTADO\" = \"CONTABILIZACIÓN SOBRANTE FÍSICO\"\n       - \"OBSERVACIÓN\" = \"CALCULADORA ARROJA EL SOBRANTE FÍSICO\"\n     - Si son **diferentes**:\n       - \"JUSTIFICACIÓN\" = \"PENDIENTE DE GESTIÓN\"\n\n5. **Estructura de salida**:\n   - Mantén todos los campos originales del JSON de entrada y actualiza solo los campos mencionados en las reglas según la lógica aplicada.\n\n**Excepciones**:\n   - Si BuscarDocHistorico no encuentra el documento histórico, no devuelve un valor numérico para \"FECHA INICIO CICLO\" o falla, suspende el proceso y genera el JSON actualizando únicamente el campo \"JUSTIFICACIÓN\" con el valor \"PENDIENTE DE GESTIÓN\".\n\nAquí está el registro JSON a procesar:\n\n${JSON.stringify(jsonData, null, 2)}\n\nDevuelve únicamente el JSON resultante, sin comentarios ni explicaciones adicionales.\n`;\n\n// Salida: Devuelve el prompt personalizado como la nueva entrada para el Agente de IA\nreturn [{\n  json: {\n    chatInput: customPrompt,\n    myVar: 23\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -600,
-        -180
+        -760,
+        -260
       ],
       "id": "f47847e7-7ac4-4866-aba0-d3a0213d2058",
       "name": "InstruccionAgente"
-    },
-    {
-      "parameters": {
-        "fileSelector": "/Users/imfabra/Developer/repos/n8n/data/_gestion/InAnajaram.xlsx",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.readWriteFile",
-      "typeVersion": 1,
-      "position": [
-        -1320,
-        160
-      ],
-      "id": "f35084ff-88ab-4d93-ae23-f2ae85586760",
-      "name": "LeerDoc"
     },
     {
       "parameters": {
@@ -190,8 +132,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -20,
-        -160
+        -60,
+        -260
       ],
       "id": "0b5c04b2-2715-42b1-a6f3-88f393cee3a8",
       "name": "Code"
@@ -204,22 +146,54 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        200,
-        -160
+        160,
+        -260
       ],
       "id": "f2b8ece6-7d1d-44c4-a7ca-9b875c504249",
       "name": "Convert to File"
     },
     {
-      "parameters": {},
+      "parameters": {
+        "mode": "chooseBranch",
+        "numberInputs": 3
+      },
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3,
       "position": [
-        -1100,
-        140
+        -1360,
+        -260
       ],
       "id": "58c0d4a4-fea9-4a55-91ee-73953dda7fc0",
       "name": "Merge"
+    },
+    {
+      "parameters": {
+        "fileSelector": "=./data/_tiras/TRDispensador.txt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        -1740,
+        -100
+      ],
+      "id": "f35084ff-88ab-4d93-ae23-f2ae85586760",
+      "name": "LeerDocTira",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -1580,
+        -100
+      ],
+      "id": "d6d4c413-a204-487c-bffe-98712e51d295",
+      "name": "BinarioToJsonTira"
     },
     {
       "parameters": {
@@ -229,24 +203,94 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1,
       "position": [
-        -1100,
-        -140
+        -1580,
+        -280
       ],
-      "id": "d6d4c413-a204-487c-bffe-98712e51d295",
+      "id": "49031506-017c-49e4-89b4-7a607fb5f6c6",
       "name": "BinarioToJsonGestion"
     },
     {
       "parameters": {
-        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\n//for (const item of $input.all()) {\n//  item.json.myNewField = 1;\n//}\n\n// Filtrar ítems donde CÓDIGO sea igual a 5853\nconst filteredItems = $input.all().filter(item => item.json[\"CÓDIGO\"] === 1429);\n\nreturn filteredItems;"
+        "fileSelector": "./data/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        -1740,
+        80
+      ],
+      "id": "dd40e867-1ca9-4dba-8bec-99e70a531855",
+      "name": "LeerDocTira1",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -1580,
+        80
+      ],
+      "id": "2b162d84-dc0d-40ed-971e-7a217707008d",
+      "name": "BinarioToJsonHistorico"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtener los datos de la entrada del nodo anterior\nconst items = $input.all();\n\n// Filtrar los registros donde \"ESTADO\" sea \"FALTANTE\" y \"REMANENTES\" y \"PROVISIONES\" no sean ambos 0\nconst filteredItems = items.filter(item => {\n    const estado = item.json[\" ESTADO \"]?.trim() === \"SOBRANTE\";\n    const remanentes = item.json[\" REMANENTES \"] || 0;\n    //const provisiones = item.json[\" PROVISIONES \"] || 0;\n\n    return estado && remanentes !== 0 //(remanentes !== 0 || provisiones !== 0);\n});\n\n// Retornar los registros filtrados\nreturn filteredItems;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -820,
-        140
+        -1160,
+        -260
+      ],
+      "id": "53ab605a-8fc0-44b5-8aa8-85ef395915b8",
+      "name": "FiltroAtmEstado",
+      "notes": "Filtro de cajeros, Estado en Sobrantes "
+    },
+    {
+      "parameters": {
+        "jsCode": "const atmSelect = 8141; \nconst filteredItems = $input.all().filter(item => item.json[\"CÓDIGO\"] === atmSelect);\nreturn filteredItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -960,
+        -260
       ],
       "id": "6b9524ef-dd70-4219-94b6-dda82cf7f8e0",
-      "name": "Find"
+      "name": "FiltroEleccionCajero"
+    },
+    {
+      "parameters": {
+        "name": "BuscarDocHistorico"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [
+        -200,
+        40
+      ],
+      "id": "e3c3a7a0-3cfc-411f-aee3-39f12e3e6ad2",
+      "name": "BuscarDocHistorico"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "import openpyxl\n\ndef leer_excel(ruta_archivo, data_only=False):\n    libro = openpyxl.load_workbook(ruta_archivo, data_only=data_only)\n    return libro\n\ndef obtener_valor_celda(libro, nombre_hoja, celda):\n    hoja = libro[nombre_hoja]\n    valor = hoja[celda].value\n    return valor\n\ndef editar_celda(libro, nombre_hoja, celda, nuevo_valor):\n    hoja = libro[nombre_hoja]\n    hoja[celda].value = nuevo_valor\n    return libro\n\ndef guardar_excel(libro, ruta_archivo):\n    libro.save(ruta_archivo)\n\n# Ejecucion... \n\nruta_archivo = './Calculadora Dispensadores.xlsx'\n\n# Obtener valores\nlibro_lectura = leer_excel(ruta_archivo, data_only=True)\nvalor_H189 = obtener_valor_celda(libro_lectura, 'Calculadora DISP', 'H189')\nvalor_H195 = obtener_valor_celda(libro_lectura, 'Calculadora DISP', 'H195')\nprint(f'Valor en H190: {valor_H189}')\nprint(f'Valor en H191: {valor_H195}')\n\n# Leer el archivo nuevamente sin data_only para editarlo\nlibro_edicion = leer_excel(ruta_archivo)\n\n# Editar valores \nlibro_edicion = editar_celda(libro_edicion, 'Calculadora DISP', 'H189', '185.000.000')\nlibro_edicion = editar_celda(libro_edicion, 'Calculadora DISP', 'H195', '205.000.000')\nprint('Celdas editadas')\n\n# Guardar los cambios\nguardar_excel(libro_edicion, ruta_archivo)\nprint('Archivo guardado')\n\n# Obtener valores \nlibro_lectura = leer_excel(ruta_archivo, data_only=True)\nvalor_H189 = obtener_valor_celda(libro_lectura, 'Calculadora DISP', 'H189')\nvalor_H195 = obtener_valor_celda(libro_lectura, 'Calculadora DISP', 'H195')\nprint(f'Valor en H189: {valor_H189}')\nprint(f'Valor en H195: {valor_H195}')\n\n\n# Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor item in _input.all():\n  item.json.myNewField = 1\nreturn _input.all()"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -860,
+        -600
+      ],
+      "id": "b5026bc1-dc68-4c5c-a30c-2670f4de42a9",
+      "name": "Code1"
     }
   ],
   "pinData": {},
@@ -295,27 +339,11 @@
         ]
       ]
     },
-    "BuscarData": {
-      "ai_tool": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_tool",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "LeerDocGestion": {
       "main": [
         [
           {
             "node": "BinarioToJsonGestion",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Merge",
             "type": "main",
             "index": 0
           }
@@ -326,7 +354,7 @@
       "main": [
         [
           {
-            "node": "LeerDoc",
+            "node": "LeerDocTira",
             "type": "main",
             "index": 0
           },
@@ -336,18 +364,7 @@
             "index": 0
           },
           {
-            "node": "FiltroATM",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "FiltroATM": {
-      "main": [
-        [
-          {
-            "node": "InstruccionAgente",
+            "node": "LeerDocTira1",
             "type": "main",
             "index": 0
           }
@@ -361,17 +378,6 @@
             "node": "AI Agent",
             "type": "main",
             "index": 0
-          }
-        ]
-      ]
-    },
-    "LeerDoc": {
-      "main": [
-        [
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 1
           }
         ]
       ]
@@ -398,20 +404,103 @@
         ]
       ]
     },
-    "BinarioToJsonGestion": {
+    "Merge": {
       "main": [
         [
           {
-            "node": "FiltroATM",
+            "node": "FiltroAtmEstado",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Merge": {
+    "LeerDocTira": {
       "main": [
-        []
+        [
+          {
+            "node": "BinarioToJsonTira",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BinarioToJsonTira": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "BinarioToJsonGestion": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LeerDocTira1": {
+      "main": [
+        [
+          {
+            "node": "BinarioToJsonHistorico",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BinarioToJsonHistorico": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "FiltroAtmEstado": {
+      "main": [
+        [
+          {
+            "node": "FiltroEleccionCajero",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FiltroEleccionCajero": {
+      "main": [
+        [
+          {
+            "node": "InstruccionAgente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BuscarDocHistorico": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
       ]
     }
   },
@@ -419,7 +508,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "e51c6cf3-6a9b-4c32-adb4-9d74a89875cc",
+  "versionId": "10eff248-8cfa-48c2-bc0f-8f58b755cd13",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
