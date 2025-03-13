@@ -1,0 +1,429 @@
+{
+  "name": "automate-base-cuadreTira",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        -380,
+        -160
+      ],
+      "id": "ac889c78-bfec-49b4-a2e1-d3fee98d2802",
+      "name": "AI Agent",
+      "alwaysOutputData": false,
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -520,
+        80
+      ],
+      "id": "25056c7a-15cb-4d12-9925-e16e841a7bdb",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "bDrVHByV826BPw8y",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        60,
+        120
+      ],
+      "id": "a088ab95-b4ca-46ce-a13d-c7dd1395f318",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "IMFABra"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -380,
+        160
+      ],
+      "id": "08758da5-289e-4855-89c5-727d93f8a012",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "ie55ptfw3ZKS3n5e",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "CalculadoraATM"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [
+        -240,
+        180
+      ],
+      "id": "f6cf6d9f-3fe2-4581-bc87-fbb73a1b4223",
+      "name": "CalculadoraATM"
+    },
+    {
+      "parameters": {
+        "name": "BuscarData"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [
+        -80,
+        160
+      ],
+      "id": "e3c3a7a0-3cfc-411f-aee3-39f12e3e6ad2",
+      "name": "BuscarData"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/Users/imfabra/Developer/repos/n8n/data/_gestion/inSara.xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        -1320,
+        -140
+      ],
+      "id": "c77a83df-ecb8-42ed-96d1-84d84df3679c",
+      "name": "LeerDocGestion"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1560,
+        -140
+      ],
+      "id": "6be7b31e-9ec8-43f4-9b67-6cdd5c92be26",
+      "name": "Inicio"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "09d8a0a8-8daf-4a79-aaa2-b405b94f1fdc",
+              "leftValue": "={{ $json['CÓDIGO'] }}",
+              "rightValue": 8141,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -840,
+        -140
+      ],
+      "id": "e8e9b8bb-5f0b-456f-a7ff-f0d5ea501b89",
+      "name": "FiltroATM"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Entrada: Los datos JSON provienen del nodo anterior\nconst jsonData = $input.first().json; // Asumiendo que el JSON filtrado se pasa como entrada\n\n// Prompt personalizado en español para generar un JSON con puntos clave\nconst customPrompt = `\nEres un asistente de IA especializado en procesar datos de cajeros automáticos (ATMs). A continuación, se te proporciona un registro JSON con información financiera y operativa de un cajero automático. Tu tarea es extraer los puntos clave de este registro y devolverlos en un formato JSON estructurado. No proporciones texto narrativo, solo genera un JSON con la siguiente estructura:\n\n{\n  \"cajero\": {\n    \"codigo\": <valor>,\n    \"nombre\": <valor>,\n    \"ciudad\": <valor>\n  },\n  \"fecha\": <valor>,\n  \"diferencia\": {\n    \"monto\": <valor>,\n    \"estado\": <valor>,\n    \"tipo\": <valor>,\n    \"sobrante\": <valor>\n  },\n  \"valores_financieros\": {\n    \"contadores\": <valor>,\n    \"contabilidad\": <valor>,\n    \"remanentes\": <valor>,\n    \"provisiones\": <valor>\n  },\n  \"responsable\": <valor>,\n  \"observacion\": <valor>,\n  \"recomendacion\": <valor>\n}\n\nAquí está el registro JSON a procesar:\n\n${JSON.stringify(jsonData, null, 2)}\n\nDevuelve únicamente el JSON resultante, sin explicaciones adicionales.\n`;\n\n// Salida: Devuelve el prompt personalizado como la nueva entrada para el Agente de IA\nreturn [{\n  json: {\n    chatInput: customPrompt,\n    myVar: 23\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -600,
+        -180
+      ],
+      "id": "f47847e7-7ac4-4866-aba0-d3a0213d2058",
+      "name": "InstruccionAgente"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/Users/imfabra/Developer/repos/n8n/data/_gestion/InAnajaram.xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        -1320,
+        160
+      ],
+      "id": "f35084ff-88ab-4d93-ae23-f2ae85586760",
+      "name": "LeerDoc"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Entrada: La salida del Agente de IA\nconst rawOutput = $input.first().json.output; // Accede al campo \"output\"\n\n// Extraer el contenido JSON eliminando el Markdown (```json y ```)\nconst jsonString = rawOutput\n  .replace(\"```json\", \"\") // Elimina el inicio del bloque Markdown\n  .replace(\"```\", \"\")     // Elimina el final del bloque Markdown\n  .trim();                // Elimina espacios en blanco adicionales\n\n// Parsear la cadena JSON a un objeto\nconst parsedJson = JSON.parse(jsonString);\n\n// Salida: Devolver el JSON limpio\nreturn [{\n  json: parsedJson\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -20,
+        -160
+      ],
+      "id": "0b5c04b2-2715-42b1-a6f3-88f393cee3a8",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        200,
+        -160
+      ],
+      "id": "f2b8ece6-7d1d-44c4-a7ca-9b875c504249",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        -1100,
+        140
+      ],
+      "id": "58c0d4a4-fea9-4a55-91ee-73953dda7fc0",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -1100,
+        -140
+      ],
+      "id": "d6d4c413-a204-487c-bffe-98712e51d295",
+      "name": "BinarioToJsonGestion"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\n//for (const item of $input.all()) {\n//  item.json.myNewField = 1;\n//}\n\n// Filtrar ítems donde CÓDIGO sea igual a 5853\nconst filteredItems = $input.all().filter(item => item.json[\"CÓDIGO\"] === 1429);\n\nreturn filteredItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -820,
+        140
+      ],
+      "id": "6b9524ef-dd70-4219-94b6-dda82cf7f8e0",
+      "name": "Find"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CalculadoraATM": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BuscarData": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LeerDocGestion": {
+      "main": [
+        [
+          {
+            "node": "BinarioToJsonGestion",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inicio": {
+      "main": [
+        [
+          {
+            "node": "LeerDoc",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "LeerDocGestion",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "FiltroATM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FiltroATM": {
+      "main": [
+        [
+          {
+            "node": "InstruccionAgente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "InstruccionAgente": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LeerDoc": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BinarioToJsonGestion": {
+      "main": [
+        [
+          {
+            "node": "FiltroATM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e51c6cf3-6a9b-4c32-adb4-9d74a89875cc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
+  },
+  "id": "8vHeRSROGN4FfB9C",
+  "tags": []
+}
