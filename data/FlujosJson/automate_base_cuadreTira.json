@@ -3,21 +3,6 @@
   "nodes": [
     {
       "parameters": {
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 1.8,
-      "position": [
-        -460,
-        -260
-      ],
-      "id": "ac889c78-bfec-49b4-a2e1-d3fee98d2802",
-      "name": "AI Agent",
-      "alwaysOutputData": false,
-      "executeOnce": false
-    },
-    {
-      "parameters": {
         "model": {
           "__rl": true,
           "value": "gpt-4o-mini",
@@ -29,8 +14,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        -680,
-        20
+        -700,
+        400
       ],
       "id": "25056c7a-15cb-4d12-9925-e16e841a7bdb",
       "name": "OpenAI Chat Model",
@@ -46,8 +31,8 @@
       "type": "@n8n/n8n-nodes-langchain.toolCalculator",
       "typeVersion": 1,
       "position": [
-        -80,
-        -20
+        -220,
+        400
       ],
       "id": "a088ab95-b4ca-46ce-a13d-c7dd1395f318",
       "name": "Calculator"
@@ -60,8 +45,8 @@
       "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
       "typeVersion": 1.3,
       "position": [
-        -540,
-        20
+        -580,
+        460
       ],
       "id": "08758da5-289e-4855-89c5-727d93f8a012",
       "name": "Postgres Chat Memory",
@@ -75,14 +60,13 @@
     {
       "parameters": {
         "name": "CalculadoraATM",
-        "language": "python",
-        "pythonCode": "# Example: convert the incoming query to uppercase and return it\nimport openpyxl\n\ndef leer_excel(ruta_archivo, data_only=False):\n    libro = openpyxl.load_workbook(ruta_archivo, data_only=data_only)\n    return libro\n\ndef obtener_valor_celda(libro, nombre_hoja, celda):\n    hoja = libro[nombre_hoja]\n    valor = hoja[celda].value\n    return valor\n\ndef editar_celda(libro, nombre_hoja, celda, nuevo_valor):\n    hoja = libro[nombre_hoja]\n    hoja[celda].value = nuevo_valor\n    return libro\n\ndef guardar_excel(libro, ruta_archivo):\n    libro.save(ruta_archivo)\n\n# Ejecucion... \n\nruta_archivo = './Calculadora Dispensadores.xlsx'\n\n# Obtener valores\nlibro_lectura = leer_excel(ruta_archivo, data_only=True)\nvalor_H189 = obtener_valor_celda(libro_lectura, 'Calculadora DISP', 'H189')\nvalor_H195 = obtener_valor_celda(libro_lectura, 'Calculadora DISP', 'H195')\nprint(f'Valor en H190: {valor_H189}')\nprint(f'Valor en H191: {valor_H195}')\n\n# Leer el archivo nuevamente sin data_only para editarlo\nlibro_edicion = leer_excel(ruta_archivo)\n\n# Editar valores \nlibro_edicion = editar_celda(libro_edicion, 'Calculadora DISP', 'H189', '185.000.000')\nlibro_edicion = editar_celda(libro_edicion, 'Calculadora DISP', 'H195', '205.000.000')\nprint('Celdas editadas')\n\n# Guardar los cambios\nguardar_excel(libro_edicion, ruta_archivo)\nprint('Archivo guardado')\n\n# Obtener valores \nlibro_lectura = leer_excel(ruta_archivo, data_only=True)\nvalor_H189 = obtener_valor_celda(libro_lectura, 'Calculadora DISP', 'H189')\nvalor_H195 = obtener_valor_celda(libro_lectura, 'Calculadora DISP', 'H195')\nprint(f'Valor en H189: {valor_H189}')\nprint(f'Valor en H195: {valor_H195}')\n\n\n\nreturn query.upper()"
+        "jsCode": "// Example: convert the incoming query to uppercase and return it\n//return query.toUpperCase()\nreturn -4550001"
       },
       "type": "@n8n/n8n-nodes-langchain.toolCode",
       "typeVersion": 1.1,
       "position": [
-        -380,
-        60
+        -340,
+        460
       ],
       "id": "f6cf6d9f-3fe2-4581-bc87-fbb73a1b4223",
       "name": "CalculadoraATM"
@@ -95,8 +79,8 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
       "position": [
-        -1740,
-        -280
+        -1980,
+        100
       ],
       "id": "c77a83df-ecb8-42ed-96d1-84d84df3679c",
       "name": "LeerDocGestion"
@@ -106,21 +90,21 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -2000,
-        -280
+        -2200,
+        100
       ],
       "id": "6be7b31e-9ec8-43f4-9b67-6cdd5c92be26",
       "name": "Inicio"
     },
     {
       "parameters": {
-        "jsCode": "// Entrada: Los datos JSON provienen del nodo anterior\nconst jsonData = $input.first().json; // Asumiendo que el JSON filtrado se pasa como entrada\n\n// Prompt personalizado en español con reglas mejoradas\nconst customPrompt = `\nEres un asistente de IA especializado en procesar datos de cajeros automáticos (ATMs). A continuación, se te proporciona un registro JSON con información financiera y operativa de un cajero automático. Tu tarea es procesar este registro según las siguientes reglas mejoradas y devolver un JSON actualizado con los campos necesarios. No proporciones texto narrativo ni explicaciones, solo genera el JSON resultante con todos los campos del JSON de entrada, actualizando únicamente los campos indicados por las reglas.\n\n**Reglas Mejoradas**\n\n1. **Consulta del histórico para validar la fecha de inicio del ciclo**:\n   - Utiliza la herramienta BuscarDocHistorico para buscar la \"FECHA INICIO CICLO\" del cajero, usando el valor del campo \"CÓDIGO\" (${jsonData[\"CÓDIGO\"]}) como identificador.\n   - Si la herramienta devuelve un resultado válido con un valor numérico, úsalo para mantener el campo \"FECHA INICIO CICLO\". Si no se encuentra el documento, no devuelve un valor numérico o falla, activa la excepción.\n\n2. **Obtención del valor del remanente**:\n   - Toma el valor del campo \"REMANENTES\" directamente del JSON de entrada (${jsonData[\"REMANENTES\"]}).\n\n3. **Cálculo del remanente con la herramienta CalculadoraATM**:\n   - Usa la herramienta CalculadoraATM, enviándole el valor de \"REMANENTES\" obtenido en el paso anterior. Almacena el resultado para el siguiente paso.\n\n4. **Comparación con la diferencia y lógica de decisión**:\n   - Compara el resultado de CalculadoraATM con el valor del campo \"DIFERENCIA\" (${jsonData[\"DIFERENCIA\"]}):\n     - Si son **iguales**:\n       - \"JUSTIFICACIÓN\" = \"FÍSICO\"\n       - \"RATIFICAR Y GRABAR DIFERENCIA\" = \"SÍ\"\n       - \"NUEVO ESTADO\" = \"CONTABILIZACIÓN SOBRANTE FÍSICO\"\n       - \"OBSERVACIÓN\" = \"CALCULADORA ARROJA EL SOBRANTE FÍSICO\"\n     - Si son **diferentes**:\n       - \"JUSTIFICACIÓN\" = \"PENDIENTE DE GESTIÓN\"\n\n5. **Estructura de salida**:\n   - Mantén todos los campos originales del JSON de entrada y actualiza solo los campos mencionados en las reglas según la lógica aplicada.\n\n**Excepciones**:\n   - Si BuscarDocHistorico no encuentra el documento histórico, no devuelve un valor numérico para \"FECHA INICIO CICLO\" o falla, suspende el proceso y genera el JSON actualizando únicamente el campo \"JUSTIFICACIÓN\" con el valor \"PENDIENTE DE GESTIÓN\".\n\nAquí está el registro JSON a procesar:\n\n${JSON.stringify(jsonData, null, 2)}\n\nDevuelve únicamente el JSON resultante, sin comentarios ni explicaciones adicionales.\n`;\n\n// Salida: Devuelve el prompt personalizado como la nueva entrada para el Agente de IA\nreturn [{\n  json: {\n    chatInput: customPrompt,\n    myVar: 23\n  }\n}];"
+        "jsCode": "// Entrada: Los datos JSON provienen del nodo anterior\nconst jsonData = $input.first().json; // Asumiendo que el JSON filtrado se pasa como entrada\n\n// Prompt personalizado en español con reglas mejoradas\nconst customPrompt = `\nEres un asistente de IA especializado en procesar datos de cajeros automáticos (ATMs). A continuación, se te proporciona un registro JSON con información financiera y operativa de un cajero automático. Tu tarea es procesar este registro según las siguientes reglas mejoradas y devolver un JSON actualizado con los campos necesarios. No proporciones texto narrativo ni explicaciones, solo genera el JSON resultante con todos los campos del JSON de entrada, actualizando únicamente los campos indicados por las reglas.\n\n**Reglas**\n\n1. **Consulta del histórico para validar la fecha de inicio del ciclo**:\n   - Utiliza la herramienta BuscarDocHistorico para buscar la \"FECHA INICIO CICLO\" del cajero, usando el valor del campo \"CÓDIGO\" (${jsonData[\"CÓDIGO\"]}) como identificador.\n   - Si la herramienta devuelve un resultado válido con un valor numérico, úsalo para mantener el campo \"FECHA INICIO CICLO\". Si no se encuentra el documento, no devuelve un valor numérico o falla, activa la excepción.\n\n2. **Obtención del valor del remanente**:\n   - Toma el valor del campo \"REMANENTES\" directamente del JSON de entrada (${jsonData[\"REMANENTES\"]}).\n\n3. **Cálculo del remanente con la herramienta CalculadoraATM**:\n   - Usa la herramienta CalculadoraATM, enviándole el valor de \"REMANENTES\" obtenido en el paso anterior. Almacena el resultado para el siguiente paso.\n\n4. **Comparación con la diferencia y lógica de decisión**:\n   - Compara el resultado de CalculadoraATM con el valor del campo \"DIFERENCIA\" (${jsonData[\"DIFERENCIA\"]}):\n     - Si son **iguales**:\n       - \"JUSTIFICACIÓN\" = \"FÍSICO\"\n       - \"RATIFICAR Y GRABAR DIFERENCIA\" = \"SÍ\"\n       - \"NUEVO ESTADO\" = \"CONTABILIZACIÓN SOBRANTE FÍSICO\"\n       - \"OBSERVACIÓN\" = \"CALCULADORA ARROJA EL SOBRANTE FÍSICO\"\n     - Si son **diferentes**:\n       - \"JUSTIFICACIÓN\" = \"PENDIENTE DE GESTIÓN\"\n    Nota: Usa la tool Calculator para restar el resultado de CalculadoraATM a $input.first().json[\" DIFERENCIA \"], si es diferente de cero la Justificacion seria = \"JUSTIFICACIÓN\" = \"PENDIENTE DE GESTIÓN\"\n\n5. **Estructura de salida**:\n   - Mantén todos los campos originales del JSON de entrada y actualiza solo los campos mencionados en las reglas según la lógica aplicada.\n\n**Excepciones**:\n   - Si BuscarDocHistorico no encuentra el documento histórico, no devuelve un valor numérico para \"FECHA INICIO CICLO\" o falla, suspende el proceso y genera el JSON actualizando únicamente el campo \"JUSTIFICACIÓN\" con el valor \"PENDIENTE DE GESTIÓN\".\n\nAquí está el registro JSON a procesar:\n\n${JSON.stringify(jsonData, null, 2)}\n\nDevuelve únicamente el JSON resultante, sin comentarios ni explicaciones adicionales.\n`;\n\n// Salida: Devuelve el prompt personalizado como la nueva entrada para el Agente de IA\nreturn [\n  { chatInput: customPrompt }\n];\n\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -760,
-        -260
+        -880,
+        120
       ],
       "id": "f47847e7-7ac4-4866-aba0-d3a0213d2058",
       "name": "InstruccionAgente"
@@ -132,8 +116,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -60,
-        -260
+        -380,
+        120
       ],
       "id": "0b5c04b2-2715-42b1-a6f3-88f393cee3a8",
       "name": "Code"
@@ -146,25 +130,11 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        160,
+        -1200,
         -260
       ],
       "id": "f2b8ece6-7d1d-44c4-a7ca-9b875c504249",
       "name": "Convert to File"
-    },
-    {
-      "parameters": {
-        "mode": "chooseBranch",
-        "numberInputs": 3
-      },
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3,
-      "position": [
-        -1360,
-        -260
-      ],
-      "id": "58c0d4a4-fea9-4a55-91ee-73953dda7fc0",
-      "name": "Merge"
     },
     {
       "parameters": {
@@ -174,8 +144,8 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
       "position": [
-        -1740,
-        -100
+        -2020,
+        1180
       ],
       "id": "f35084ff-88ab-4d93-ae23-f2ae85586760",
       "name": "LeerDocTira",
@@ -189,8 +159,8 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1,
       "position": [
-        -1580,
-        -100
+        -1860,
+        1180
       ],
       "id": "d6d4c413-a204-487c-bffe-98712e51d295",
       "name": "BinarioToJsonTira"
@@ -203,37 +173,22 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1,
       "position": [
-        -1580,
-        -280
+        -1820,
+        100
       ],
       "id": "49031506-017c-49e4-89b4-7a607fb5f6c6",
       "name": "BinarioToJsonGestion"
     },
     {
       "parameters": {
-        "fileSelector": "./data/",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.readWriteFile",
-      "typeVersion": 1,
-      "position": [
-        -1740,
-        80
-      ],
-      "id": "dd40e867-1ca9-4dba-8bec-99e70a531855",
-      "name": "LeerDocTira1",
-      "notesInFlow": false
-    },
-    {
-      "parameters": {
-        "operation": "text",
+        "operation": "xlsx",
         "options": {}
       },
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1,
       "position": [
-        -1580,
-        80
+        -1820,
+        1320
       ],
       "id": "2b162d84-dc0d-40ed-971e-7a217707008d",
       "name": "BinarioToJsonHistorico"
@@ -245,12 +200,656 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1160,
-        -260
+        -1660,
+        100
       ],
       "id": "53ab605a-8fc0-44b5-8aa8-85ef395915b8",
       "name": "FiltroAtmEstado",
       "notes": "Filtro de cajeros, Estado en Sobrantes "
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        -700,
+        120
+      ],
+      "id": "ac889c78-bfec-49b4-a2e1-d3fee98d2802",
+      "name": "AI Agent",
+      "alwaysOutputData": false,
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "fileSelector": "./data/_historico/HISTORICO.xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        -2020,
+        1320
+      ],
+      "id": "dd40e867-1ca9-4dba-8bec-99e70a531855",
+      "name": "LeerDocHistorico",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        -1160,
+        1520
+      ],
+      "id": "47a1c11d-d0ab-475c-a3f6-e1aefde9b916",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtener los datos de entrada del nodo en n8n\nconst items = $input.all();\n\n// Fecha inicial proporcionada (ajústala dinámicamente si es necesario)\nconst fechaInicial = 20250217;\n\n// Filtrar los registros correspondientes a la misma entidad (por ejemplo, mismo código de cajero)\nconst registros = items.filter(item => item.json[\"CÓDIGO\"] === 8141);\n\n// Ordenar los registros por fecha en orden ascendente\nregistros.sort((a, b) => a.json[\"FECHA\"] - b.json[\"FECHA\"]);\n\n// Estructurar los datos en un JSON limpio para enviarlo al agente\nconst datosParaAnalizar = registros.map(reg => ({\n    fecha: reg.json[\"FECHA\"],\n    remanente: reg.json[\"REMANENTES\"],\n    provision: reg.json[\"PROVISIONES\"]\n}));\n\n// Crear el prompt para el agente\nconst chatInput = `\nDada la siguiente lista de registros de fechas con los valores de 'remanente' y 'provisión', \nidentifica si la fecha ${fechaInicial} tiene ambos valores mayores a 0. \nSi los tiene, responde con esa fecha. Si no, encuentra la fecha anterior más cercana con ambos valores mayores a 0. \nSi no hay una fecha anterior válida, busca la siguiente fecha más cercana que cumpla la condición.\n\nLista de datos:\n${JSON.stringify(datosParaAnalizar, null, 2)}\n\nDevuelve solo la fecha válida encontrada, sin ningún otro texto adicional.\n`;\n\n// Retornar el prompt para que el nodo siguiente lo use en el agente de IA\nreturn [{ json: { chatInput } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1380,
+        1520
+      ],
+      "id": "4f9560b7-e561-402a-a57b-37885da9b7d8",
+      "name": "InstruccionAgente1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1140,
+        1700
+      ],
+      "id": "a3a87eef-9192-469b-a2e5-31479b6cf50e",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "bDrVHByV826BPw8y",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const atmSelect = 8141; \nconst filteredItems = $input.all().filter(item => item.json[\"CÓDIGO\"] === atmSelect);\nreturn filteredItems;\n\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1620,
+        1600
+      ],
+      "id": "381d6fb4-3a41-47ca-a092-47d386a317f0",
+      "name": "FiltroEleccionCajero3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtener los datos de entrada del nodo en n8n\nconst items = $input.all();\n\n// Fecha inicial a validar\nlet fechaInicial = 20250217;\n\n// Convertir la fecha a un formato manejable (YYYYMMDD → Date)\nconst obtenerFechaAnterior = (fecha) => {\n    let año = Math.floor(fecha / 10000);\n    let mes = Math.floor((fecha % 10000) / 100);\n    let dia = fecha % 100;\n\n    // Restar un día\n    dia -= 1;\n\n    // Si el día es 0, retroceder al mes anterior\n    if (dia === 0) {\n        mes -= 1;\n\n        // Si el mes es 0, retroceder al año anterior y establecer diciembre\n        if (mes === 0) {\n            mes = 12;\n            año -= 1;\n        }\n\n        // Obtener el último día del mes anterior\n        const diasEnMes = new Date(año, mes, 0).getDate();\n        dia = diasEnMes;\n    }\n\n    // Construir la nueva fecha en formato YYYYMMDD\n    return año * 10000 + mes * 100 + dia;\n};\n\n// Restar un día correctamente\nfechaInicial = obtenerFechaAnterior(fechaInicial);\n\n// Filtrar registros del mismo código de cajero\nconst registros = items.filter(item => item.json[\"CÓDIGO\"] === 8141);\n\n// Ordenar los registros por fecha en orden descendente para facilitar la búsqueda de la fecha más cercana anterior\nregistros.sort((a, b) => b.json[\"FECHA\"] - a.json[\"FECHA\"]);\n\n// Buscar la fecha que cumpla la condición\nlet fechaValida = \"00000000\"; \n\nfor (const reg of registros) {\n    if (reg.json[\"FECHA\"] <= fechaInicial && reg.json[\"REMANENTES\"] > 0 && reg.json[\"PROVISIONES\"] > 0) {\n        fechaValida = reg.json[\"FECHA\"];\n        break; // Se detiene en la primera fecha válida encontrada\n    }\n}\n\n// Retornar la fecha encontrada en el formato requerido (solo la fecha, sin texto adicional)\nreturn [{ json: { fecha: fechaValida } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1620,
+        1320
+      ],
+      "id": "1c16ac76-8d69-4417-ae45-c09d41d1ec2d",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -1400,
+        1320
+      ],
+      "id": "d06aca53-ad51-4842-a749-49710d5957e3",
+      "name": "Convert to File1"
+    },
+    {
+      "parameters": {
+        "table": "historico",
+        "columns": "=CÓDIGO, FECHA, REMANENTES, PROVISIONES",
+        "additionalFields": {}
+      },
+      "name": "Insert Rows",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -1620,
+        1460
+      ],
+      "typeVersion": 1,
+      "id": "ba6be925-8750-4822-a2a9-dacdf4eb20d3",
+      "credentials": {
+        "postgres": {
+          "id": "ie55ptfw3ZKS3n5e",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "historico",
+          "mode": "list",
+          "cachedResultName": "historico"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "CÓDIGO",
+              "value": "={{ $json[\"CÓDIGO\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        -1200,
+        -100
+      ],
+      "id": "07e72960-97bd-47e2-920e-d5d421f2cb8c",
+      "name": "Postgres",
+      "credentials": {
+        "postgres": {
+          "id": "ie55ptfw3ZKS3n5e",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtener los datos de entrada del nodo en n8n\nconst items = $input.all();\n\n// Fecha inicial a validar\nlet fechaInicial = $('Loop Over Items').first().json.FECHA;\nconsole.log(\"Fecha salida\", fechaInicial);\n\n// Convertir la fecha a un formato manejable (YYYYMMDD → Date)\nconst obtenerFechaAnterior = (fecha) => {\n    let año = Math.floor(fecha / 10000);\n    let mes = Math.floor((fecha % 10000) / 100);\n    let dia = fecha % 100;\n\n    // Restar un día\n    dia -= 1;\n\n    // Si el día es 0, retroceder al mes anterior\n    if (dia === 0) {\n        mes -= 1;\n\n        // Si el mes es 0, retroceder al año anterior y establecer diciembre\n        if (mes === 0) {\n            mes = 12;\n            año -= 1;\n        }\n\n        // Obtener el último día del mes anterior\n        const diasEnMes = new Date(año, mes, 0).getDate();\n        dia = diasEnMes;\n    }\n\n    // Construir la nueva fecha en formato YYYYMMDD\n    return año * 10000 + mes * 100 + dia;\n};\n\n// Restar un día correctamente\nfechaInicial = obtenerFechaAnterior(fechaInicial);\n\n// Filtrar registros del mismo código de cajero\nconst registros = items.filter(item => item.json[\"CÓDIGO\"] === $('Loop Over Items').first().json.CÓDIGO);\n\n// Ordenar los registros por fecha en orden descendente para facilitar la búsqueda de la fecha más cercana anterior\nregistros.sort((a, b) => b.json[\"FECHA\"] - a.json[\"FECHA\"]);\n\n// Buscar la fecha que cumpla la condición\nlet fechaValida = \"00000000\"; \n\nfor (const reg of registros) {\n    if (reg.json[\"FECHA\"] <= fechaInicial && reg.json[\"REMANENTES\"] > 0 && reg.json[\"PROVISIONES\"] > 0) {\n        fechaValida = reg.json[\"FECHA\"];\n        break; // Se detiene en la primera fecha válida encontrada\n    }\n}\n\n// Retornar la fecha encontrada en el formato requerido (solo la fecha, sin texto adicional)\nreturn [{ json: { fecha: fechaValida } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1040,
+        -100
+      ],
+      "id": "388d89c5-4340-4741-b6c9-bec8ab3812f2",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "variables",
+          "mode": "list",
+          "cachedResultName": "variables"
+        },
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "where": {
+          "values": [
+            {
+              "column": "idAtm",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.5,
+      "position": [
+        -460,
+        480
+      ],
+      "id": "856473e8-613d-4fac-9948-837d9a288495",
+      "name": "BuscarDocHistorico",
+      "credentials": {
+        "postgres": {
+          "id": "ie55ptfw3ZKS3n5e",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list",
+          "cachedResultName": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "variables",
+          "mode": "list",
+          "cachedResultName": "variables"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "nombre": "historicoAtmCiclo",
+            "valor_num": "={{ $json.fecha }}",
+            "idAtm": "={{ $('Loop Over Items').first().json.CÓDIGO }}"
+          },
+          "matchingColumns": [
+            "nombre"
+          ],
+          "schema": [
+            {
+              "id": "nombre",
+              "displayName": "nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "valor_num",
+              "displayName": "valor_num",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "valor_text",
+              "displayName": "valor_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "idAtm",
+              "displayName": "idAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        -900,
+        -100
+      ],
+      "id": "2f1131a3-928d-4ff1-8091-0bec7a401b66",
+      "name": "Postgres2",
+      "credentials": {
+        "postgres": {
+          "id": "ie55ptfw3ZKS3n5e",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        -1060,
+        120
+      ],
+      "id": "5caa7102-aef4-4dbf-b076-8aecee1b10ed",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "historico",
+          "mode": "list",
+          "cachedResultName": "historico"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "CÓDIGO",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.5,
+      "position": [
+        -1680,
+        1920
+      ],
+      "id": "123a742a-4e60-4f0c-a721-7d080259117e",
+      "name": "Postgres1",
+      "credentials": {
+        "postgres": {
+          "id": "ie55ptfw3ZKS3n5e",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        -1900,
+        1760
+      ],
+      "id": "f5a85626-7d5d-4443-8191-40bb331ed27b",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1960,
+        1900
+      ],
+      "id": "214325be-9950-4c1c-b355-fad6d2a14174",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "bDrVHByV826BPw8y",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -2120,
+        1760
+      ],
+      "id": "aec887f3-208e-4052-bccf-a8bcde2e8c3f",
+      "name": "When chat message received",
+      "webhookId": "fad41c41-5eeb-4937-88fa-ae912f2293d2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1460,
+        100
+      ],
+      "id": "4e52b292-483b-4fed-8559-27ab867f8572",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -700,
+        -980
+      ],
+      "id": "8d962d8b-38d6-4bc8-b066-a4ad5f1e6ab5",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "bDrVHByV826BPw8y",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        -980
+      ],
+      "id": "8ea5c29e-ae6b-44a0-98df-210430f04571",
+      "name": "Calculator1"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "IMFABra"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -580,
+        -920
+      ],
+      "id": "67d02143-63a6-4df4-b062-442f42df775c",
+      "name": "Postgres Chat Memory1",
+      "credentials": {
+        "postgres": {
+          "id": "ie55ptfw3ZKS3n5e",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "CalculadoraATM",
+        "jsCode": "// Example: convert the incoming query to uppercase and return it\n//return query.toUpperCase()\nreturn -4550001"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [
+        -340,
+        -920
+      ],
+      "id": "67f24c9c-dbc3-462f-98c7-ea0e26ae1af8",
+      "name": "CalculadoraATM1"
+    },
+    {
+      "parameters": {
+        "fileSelector": "./data/_gestion/inSara.xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        -1980,
+        -1280
+      ],
+      "id": "70acc67e-bb26-4956-a307-5b33517cb867",
+      "name": "LeerDocGestion1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Entrada: Los datos JSON provienen del nodo anterior\nconst jsonData = $input.first().json; // Asumiendo que el JSON filtrado se pasa como entrada\n\n// Prompt personalizado en español con reglas mejoradas\nconst customPrompt = `\nEres un asistente de IA especializado en procesar datos de cajeros automáticos (ATMs). A continuación, se te proporciona un registro JSON con información financiera y operativa de un cajero automático. Tu tarea es procesar este registro según las siguientes reglas mejoradas y devolver un JSON actualizado con los campos necesarios. No proporciones texto narrativo ni explicaciones, solo genera el JSON resultante con todos los campos del JSON de entrada, actualizando únicamente los campos indicados por las reglas.\n\n**Reglas**\n\n1. **Consulta del histórico para validar la fecha de inicio del ciclo**:\n   - Utiliza la herramienta BuscarDocHistorico para buscar la \"FECHA INICIO CICLO\" del cajero, usando el valor del campo \"CÓDIGO\" (${jsonData[\"CÓDIGO\"]}) como identificador.\n   - Si la herramienta devuelve un resultado válido con un valor numérico, úsalo para mantener el campo \"FECHA INICIO CICLO\". Si no se encuentra el documento, no devuelve un valor numérico o falla, activa la excepción.\n\n2. **Obtención del valor del remanente**:\n   - Toma el valor del campo \"REMANENTES\" directamente del JSON de entrada (${jsonData[\"REMANENTES\"]}).\n\n3. **Cálculo del remanente con la herramienta CalculadoraATM**:\n   - Usa la herramienta CalculadoraATM, enviándole el valor de \"REMANENTES\" obtenido en el paso anterior. Almacena el resultado para el siguiente paso.\n\n4. **Comparación con la diferencia y lógica de decisión**:\n   - Compara el resultado de CalculadoraATM con el valor del campo \"DIFERENCIA\" (${jsonData[\"DIFERENCIA\"]}):\n     - Si son **iguales**:\n       - \"JUSTIFICACIÓN\" = \"FÍSICO\"\n       - \"RATIFICAR Y GRABAR DIFERENCIA\" = \"SÍ\"\n       - \"NUEVO ESTADO\" = \"CONTABILIZACIÓN SOBRANTE FÍSICO\"\n       - \"OBSERVACIÓN\" = \"CALCULADORA ARROJA EL SOBRANTE FÍSICO\"\n     - Si son **diferentes**:\n       - \"JUSTIFICACIÓN\" = \"PENDIENTE DE GESTIÓN\"\n    Nota: Usa la tool Calculator para restar el resultado de CalculadoraATM a $input.first().json[\" DIFERENCIA \"], si es diferente de cero la Justificacion seria = \"JUSTIFICACIÓN\" = \"PENDIENTE DE GESTIÓN\"\n\n5. **Estructura de salida**:\n   - Mantén todos los campos originales del JSON de entrada y actualiza solo los campos mencionados en las reglas según la lógica aplicada.\n\n**Excepciones**:\n   - Si BuscarDocHistorico no encuentra el documento histórico, no devuelve un valor numérico para \"FECHA INICIO CICLO\" o falla, suspende el proceso y genera el JSON actualizando únicamente el campo \"JUSTIFICACIÓN\" con el valor \"PENDIENTE DE GESTIÓN\".\n\nAquí está el registro JSON a procesar:\n\n${JSON.stringify(jsonData, null, 2)}\n\nDevuelve únicamente el JSON resultante, sin comentarios ni explicaciones adicionales.\n`;\n\n// Salida: Devuelve el prompt personalizado como la nueva entrada para el Agente de IA\nreturn [\n  { chatInput: customPrompt }\n];\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -880,
+        -1260
+      ],
+      "id": "fb7d8921-0024-401c-8fcb-a70df90270a5",
+      "name": "InstruccionAgente2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Entrada: La salida del Agente de IA\nconst rawOutput = $input.first().json.output; // Accede al campo \"output\"\n\n// Extraer el contenido JSON eliminando el Markdown (```json y ```)\nconst jsonString = rawOutput\n  .replace(\"```json\", \"\") // Elimina el inicio del bloque Markdown\n  .replace(\"```\", \"\")     // Elimina el final del bloque Markdown\n  .trim();                // Elimina espacios en blanco adicionales\n\n// Parsear la cadena JSON a un objeto\nconst parsedJson = JSON.parse(jsonString);\n\n// Salida: Devolver el JSON limpio\nreturn [{\n  json: parsedJson\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -380,
+        -1260
+      ],
+      "id": "3c43b523-a576-49be-976d-256a03c5c005",
+      "name": "Code3"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        160,
+        -1260
+      ],
+      "id": "f26c0a61-0dee-430f-bb3a-3d3c44b746f9",
+      "name": "Convert to File2"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -1820,
+        -1280
+      ],
+      "id": "6ff2c4d7-c116-4302-a751-24735ab236d0",
+      "name": "BinarioToJsonGestion1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtener los datos de la entrada del nodo anterior\nconst items = $input.all();\n\n// Filtrar los registros donde \"ESTADO\" sea \"FALTANTE\" y \"REMANENTES\" y \"PROVISIONES\" no sean ambos 0\nconst filteredItems = items.filter(item => {\n    const estado = item.json[\" ESTADO \"]?.trim() === \"SOBRANTE\";\n    const remanentes = item.json[\" REMANENTES \"] || 0;\n    //const provisiones = item.json[\" PROVISIONES \"] || 0;\n\n    return estado && remanentes !== 0 //(remanentes !== 0 || provisiones !== 0);\n});\n\n// Retornar los registros filtrados\nreturn filteredItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1660,
+        -1280
+      ],
+      "id": "d5297ac8-79dc-4c60-86fe-860500ea9fe0",
+      "name": "FiltroAtmEstado1",
+      "notes": "Filtro de cajeros, Estado en Sobrantes "
+    },
+    {
+      "parameters": {
+        "jsCode": "const atmSelect = 8141; \nconst atmFecha = 21212;\nconst filteredItems = $input.all().filter(item => item.json[\"CÓDIGO\"] === atmSelect);\n\n// Retornar un array con los elementos filtrados y las variables adicionales\nreturn filteredItems;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1420,
+        -1280
+      ],
+      "id": "4be46629-b489-40f5-bebc-fba1862eea7b",
+      "name": "FiltroEleccionCajero4"
+    },
+    {
+      "parameters": {
+        "jsCode": "const atmSelect = 8141; \nconst filteredItems = $input.all().filter(item => item.json[\"CÓDIGO\"] !== atmSelect);\nreturn filteredItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1420,
+        -1500
+      ],
+      "id": "a54ea651-de30-4c09-9ef8-b473102748de",
+      "name": "FiltroEleccionCajero5"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        -220,
+        -1480
+      ],
+      "id": "ba018714-3b32-472e-9d4b-55457cf504d6",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        -700,
+        -1260
+      ],
+      "id": "c2e2cd22-6626-4fe9-8d71-9d9265689b1e",
+      "name": "AI Agent3",
+      "alwaysOutputData": false,
+      "executeOnce": false
     },
     {
       "parameters": {
@@ -259,38 +858,204 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -960,
-        -260
+        0,
+        -1260
       ],
-      "id": "6b9524ef-dd70-4219-94b6-dda82cf7f8e0",
-      "name": "FiltroEleccionCajero"
+      "id": "62da250e-0182-4442-92ef-1cae4eac649f",
+      "name": "FiltroEleccionCajero6"
     },
     {
       "parameters": {
-        "name": "BuscarDocHistorico"
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "historico",
+          "mode": "list",
+          "cachedResultName": "historico"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "CÓDIGO",
+              "value": "={{ $json[\"CÓDIGO\"] }}"
+            }
+          ]
+        },
+        "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.toolCode",
-      "typeVersion": 1.1,
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
       "position": [
-        -200,
-        40
+        -1420,
+        -1060
       ],
-      "id": "e3c3a7a0-3cfc-411f-aee3-39f12e3e6ad2",
-      "name": "BuscarDocHistorico"
+      "id": "e2c07eff-64c1-4f8b-8010-0a00f0aa7ead",
+      "name": "Postgres3",
+      "credentials": {
+        "postgres": {
+          "id": "ie55ptfw3ZKS3n5e",
+          "name": "Postgres account"
+        }
+      }
     },
     {
       "parameters": {
-        "language": "python",
-        "pythonCode": "import openpyxl\n\ndef leer_excel(ruta_archivo, data_only=False):\n    libro = openpyxl.load_workbook(ruta_archivo, data_only=data_only)\n    return libro\n\ndef obtener_valor_celda(libro, nombre_hoja, celda):\n    hoja = libro[nombre_hoja]\n    valor = hoja[celda].value\n    return valor\n\ndef editar_celda(libro, nombre_hoja, celda, nuevo_valor):\n    hoja = libro[nombre_hoja]\n    hoja[celda].value = nuevo_valor\n    return libro\n\ndef guardar_excel(libro, ruta_archivo):\n    libro.save(ruta_archivo)\n\n# Ejecucion... \n\nruta_archivo = './Calculadora Dispensadores.xlsx'\n\n# Obtener valores\nlibro_lectura = leer_excel(ruta_archivo, data_only=True)\nvalor_H189 = obtener_valor_celda(libro_lectura, 'Calculadora DISP', 'H189')\nvalor_H195 = obtener_valor_celda(libro_lectura, 'Calculadora DISP', 'H195')\nprint(f'Valor en H190: {valor_H189}')\nprint(f'Valor en H191: {valor_H195}')\n\n# Leer el archivo nuevamente sin data_only para editarlo\nlibro_edicion = leer_excel(ruta_archivo)\n\n# Editar valores \nlibro_edicion = editar_celda(libro_edicion, 'Calculadora DISP', 'H189', '185.000.000')\nlibro_edicion = editar_celda(libro_edicion, 'Calculadora DISP', 'H195', '205.000.000')\nprint('Celdas editadas')\n\n# Guardar los cambios\nguardar_excel(libro_edicion, ruta_archivo)\nprint('Archivo guardado')\n\n# Obtener valores \nlibro_lectura = leer_excel(ruta_archivo, data_only=True)\nvalor_H189 = obtener_valor_celda(libro_lectura, 'Calculadora DISP', 'H189')\nvalor_H195 = obtener_valor_celda(libro_lectura, 'Calculadora DISP', 'H195')\nprint(f'Valor en H189: {valor_H189}')\nprint(f'Valor en H195: {valor_H195}')\n\n\n# Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor item in _input.all():\n  item.json.myNewField = 1\nreturn _input.all()"
+        "jsCode": "// Obtener los datos de entrada del nodo en n8n\nconst items = $input.all();\n\n// Fecha inicial a validar\nlet fechaInicial = $('FiltroEleccionCajero4').first().json.FECHA;\n\n// Convertir la fecha a un formato manejable (YYYYMMDD → Date)\nconst obtenerFechaAnterior = (fecha) => {\n    let año = Math.floor(fecha / 10000);\n    let mes = Math.floor((fecha % 10000) / 100);\n    let dia = fecha % 100;\n\n    // Restar un día\n    dia -= 1;\n\n    // Si el día es 0, retroceder al mes anterior\n    if (dia === 0) {\n        mes -= 1;\n\n        // Si el mes es 0, retroceder al año anterior y establecer diciembre\n        if (mes === 0) {\n            mes = 12;\n            año -= 1;\n        }\n\n        // Obtener el último día del mes anterior\n        const diasEnMes = new Date(año, mes, 0).getDate();\n        dia = diasEnMes;\n    }\n\n    // Construir la nueva fecha en formato YYYYMMDD\n    return año * 10000 + mes * 100 + dia;\n};\n\n// Restar un día correctamente\nfechaInicial = obtenerFechaAnterior(fechaInicial);\n\n// Filtrar registros del mismo código de cajero\nconst registros = items.filter(item => item.json[\"CÓDIGO\"] === 8141);\n\n// Ordenar los registros por fecha en orden descendente para facilitar la búsqueda de la fecha más cercana anterior\nregistros.sort((a, b) => b.json[\"FECHA\"] - a.json[\"FECHA\"]);\n\n// Buscar la fecha que cumpla la condición\nlet fechaValida = \"00000000\"; \n\nfor (const reg of registros) {\n    if (reg.json[\"FECHA\"] <= fechaInicial && reg.json[\"REMANENTES\"] > 0 && reg.json[\"PROVISIONES\"] > 0) {\n        fechaValida = reg.json[\"FECHA\"];\n        break; // Se detiene en la primera fecha válida encontrada\n    }\n}\n\n// Retornar la fecha encontrada en el formato requerido (solo la fecha, sin texto adicional)\nreturn [{ json: { fecha: fechaValida } }];\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -860,
-        -600
+        -1300,
+        -1060
       ],
-      "id": "b5026bc1-dc68-4c5c-a30c-2670f4de42a9",
-      "name": "Code1"
+      "id": "1d40c95e-e0a6-47e7-a2da-6fcc6c088cc4",
+      "name": "Code4"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "variables",
+          "mode": "list",
+          "cachedResultName": "variables"
+        },
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "where": {
+          "values": [
+            {
+              "column": "idAtm",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.5,
+      "position": [
+        -460,
+        -900
+      ],
+      "id": "ec7e65b4-f1a4-4c27-a658-471758d933d6",
+      "name": "BuscarDocHistorico1",
+      "credentials": {
+        "postgres": {
+          "id": "ie55ptfw3ZKS3n5e",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list",
+          "cachedResultName": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "variables",
+          "mode": "list",
+          "cachedResultName": "variables"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "nombre": "historicoAtmCiclo",
+            "valor_num": "={{ $json.fecha }}",
+            "idAtm": "={{ $('FiltroEleccionCajero4').first().json.CÓDIGO }}"
+          },
+          "matchingColumns": [
+            "nombre"
+          ],
+          "schema": [
+            {
+              "id": "nombre",
+              "displayName": "nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "valor_num",
+              "displayName": "valor_num",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "valor_text",
+              "displayName": "valor_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "idAtm",
+              "displayName": "idAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        -1180,
+        -1060
+      ],
+      "id": "e55539b3-7fda-4883-aeaf-0e321b2a7e70",
+      "name": "Postgres4",
+      "credentials": {
+        "postgres": {
+          "id": "ie55ptfw3ZKS3n5e",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        -1060,
+        -1260
+      ],
+      "id": "56da8444-3dd2-4565-ae5c-f7373eb2a5ad",
+      "name": "Merge3"
     }
   ],
   "pinData": {},
@@ -354,17 +1119,7 @@
       "main": [
         [
           {
-            "node": "LeerDocTira",
-            "type": "main",
-            "index": 0
-          },
-          {
             "node": "LeerDocGestion",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "LeerDocTira1",
             "type": "main",
             "index": 0
           }
@@ -382,33 +1137,11 @@
         ]
       ]
     },
-    "AI Agent": {
-      "main": [
-        [
-          {
-            "node": "Code",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Code": {
       "main": [
         [
           {
-            "node": "Convert to File",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Merge": {
-      "main": [
-        [
-          {
-            "node": "FiltroAtmEstado",
+            "node": "Loop Over Items",
             "type": "main",
             "index": 0
           }
@@ -428,31 +1161,14 @@
     },
     "BinarioToJsonTira": {
       "main": [
-        [
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 1
-          }
-        ]
+        []
       ]
     },
     "BinarioToJsonGestion": {
       "main": [
         [
           {
-            "node": "Merge",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "LeerDocTira1": {
-      "main": [
-        [
-          {
-            "node": "BinarioToJsonHistorico",
+            "node": "FiltroAtmEstado",
             "type": "main",
             "index": 0
           }
@@ -463,9 +1179,14 @@
       "main": [
         [
           {
-            "node": "Merge",
+            "node": "Code1",
             "type": "main",
-            "index": 2
+            "index": 0
+          },
+          {
+            "node": "Insert Rows",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -474,18 +1195,100 @@
       "main": [
         [
           {
-            "node": "FiltroEleccionCajero",
+            "node": "Loop Over Items",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "FiltroEleccionCajero": {
+    "AI Agent": {
       "main": [
         [
           {
-            "node": "InstruccionAgente",
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LeerDocHistorico": {
+      "main": [
+        [
+          {
+            "node": "BinarioToJsonHistorico",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "InstruccionAgente1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        []
+      ]
+    },
+    "FiltroEleccionCajero3": {
+      "main": [
+        [
+          {
+            "node": "InstruccionAgente1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Postgres2",
             "type": "main",
             "index": 0
           }
@@ -502,13 +1305,310 @@
           }
         ]
       ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "InstruccionAgente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Postgres1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Postgres",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CalculadoraATM1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LeerDocGestion1": {
+      "main": [
+        [
+          {
+            "node": "BinarioToJsonGestion1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "InstruccionAgente2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "BinarioToJsonGestion1": {
+      "main": [
+        [
+          {
+            "node": "FiltroAtmEstado1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FiltroAtmEstado1": {
+      "main": [
+        [
+          {
+            "node": "FiltroEleccionCajero4",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "FiltroEleccionCajero5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FiltroEleccionCajero4": {
+      "main": [
+        [
+          {
+            "node": "Postgres3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FiltroEleccionCajero5": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "FiltroEleccionCajero6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent3": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FiltroEleccionCajero6": {
+      "main": [
+        [
+          {
+            "node": "Convert to File2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres3": {
+      "main": [
+        [
+          {
+            "node": "Code4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code4": {
+      "main": [
+        [
+          {
+            "node": "Postgres4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BuscarDocHistorico1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres4": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge3": {
+      "main": [
+        [
+          {
+            "node": "InstruccionAgente2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "10eff248-8cfa-48c2-bc0f-8f58b755cd13",
+  "versionId": "0f6bff93-e699-418b-958e-80a97c8f6390",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
