@@ -1,0 +1,725 @@
+{
+  "name": "app_hdi_main",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "163f50a0-b5a7-4659-b315-2e5cefd5f79e",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        0
+      ],
+      "id": "2ed8ce44-c6eb-4f19-8c53-7424c64f57cd",
+      "name": "Webhook",
+      "webhookId": "163f50a0-b5a7-4659-b315-2e5cefd5f79e"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2700,
+        0
+      ],
+      "id": "372683b0-5c8b-4a03-ac05-e6d5f5469b82",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtener los datos de la entrada del nodo anterior\nconst items = $input.all();\n\n// Filtrar los registros donde \"ESTADO\" sea \"FALTANTE\" y \"REMANENTES\" y \"PROVISIONES\" no sean ambos 0\nconst filteredItems = items.filter(item => {\n    const estado = item.json[\" ESTADO \"]?.trim() === \"SOBRANTE\";\n    const remanentes = item.json[\" REMANENTES \"] || 0;\n    //const provisiones = item.json[\" PROVISIONES \"] || 0;\n\n    return estado && remanentes !== 0 //(remanentes !== 0 || provisiones !== 0);\n});\n\n// Retornar los registros filtrados\nreturn filteredItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ],
+      "id": "09e30555-3dd5-478e-bf82-22f32f228164",
+      "name": "FiltroAtmSobrantes",
+      "notes": "Filtro de cajeros, Estado en Sobrantes "
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        420,
+        0
+      ],
+      "id": "cab340bb-71b5-4771-8921-e331f4cbfa38",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "280426bb-2e1a-4105-9cb5-827e2bd15ef1",
+              "name": "path",
+              "value": "={{ $json.body.pathGestion }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        20,
+        -100
+      ],
+      "id": "5ce78659-80e6-4891-b193-647d9b37df11",
+      "name": "path_gestion"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "oCF8eYfMwHY96LWk",
+          "mode": "list",
+          "cachedResultName": "app_hdi_readFile"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        -100
+      ],
+      "id": "fd53568d-f1bb-4a91-a003-5f4d9ff48689",
+      "name": "_readFile"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "280426bb-2e1a-4105-9cb5-827e2bd15ef1",
+              "name": "path",
+              "value": "={{ $json.body.pathTira }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        20,
+        80
+      ],
+      "id": "31a12e31-10f5-4546-baad-4324ee515963",
+      "name": "path_tira"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "oCF8eYfMwHY96LWk",
+          "mode": "list",
+          "cachedResultName": "app_hdi_readFile"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        80
+      ],
+      "id": "d1a489ee-1dc4-467d-8e43-e59627b0f42f",
+      "name": "_readFile1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const atmSelect = 8141; \nconst atmFecha = 21212;\nconst filteredItems = $input.all().filter(item => item.json[\"CÓDIGO\"] === atmSelect);\n\n// Retornar un array con los elementos filtrados y las variables adicionales\nreturn filteredItems;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        840,
+        0
+      ],
+      "id": "13212da1-5c23-47a7-9e6f-65afb2e06c75",
+      "name": "FiltroEleccionCajero"
+    },
+    {
+      "parameters": {
+        "source": "parameter",
+        "workflowJson": "{\n  \"CÓDIGO\": 8141\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1340,
+        -120
+      ],
+      "id": "62f65b2d-11b0-4c24-a9fd-6f7ec89e4d44",
+      "name": "app_hdi_callProcesssHistorico",
+      "notes": "llamado a processHistorico para calcular fecha inicio ciclo, este workflow recibe el id del cajero que se va a cuadrar y debe retornar la fecha de inicio de ciclo segun el algoritmo, este consulta el historico para traer los datos registrados con ese CODIGO de cajero y calcula la fecha."
+    },
+    {
+      "parameters": {
+        "source": "parameter",
+        "workflowJson": "{\n  \"CÓDIGO\": 8141\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2280,
+        0
+      ],
+      "id": "c8469f67-7fd1-42d0-ba61-75a6f63f1800",
+      "name": "app_hdi_callAgente",
+      "notes": "llamado a processHistorico para calcular fecha inicio ciclo, este workflow recibe el id del cajero que se va a cuadrar y debe retornar la fecha de inicio de ciclo segun el algoritmo, este consulta el historico para traer los datos registrados con ese CODIGO de cajero y calcula la fecha."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2e79dae5-d9fb-4b44-86fe-43244bdced07",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        100
+      ],
+      "id": "1491c800-cdf1-411f-bd31-c6fffe1efc4e",
+      "name": "set_json_tira"
+    },
+    {
+      "parameters": {
+        "source": "parameter",
+        "workflowJson": "{\n  \"CÓDIGO\": 8141\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1340,
+        100
+      ],
+      "id": "8a2c7fb8-806e-47de-8e63-72b20b545fce",
+      "name": "app_hdi_callAgente_extracDispensed",
+      "notes": "llamado a processHistorico para calcular fecha inicio ciclo, este workflow recibe el id del cajero que se va a cuadrar y debe retornar la fecha de inicio de ciclo segun el algoritmo, este consulta el historico para traer los datos registrados con ese CODIGO de cajero y calcula la fecha."
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// Valores de los billetes por cada TYPE\nconst billValues = {\n    TYPE1: 50000,\n    TYPE2: 50000,\n    TYPE3: 20000,\n    TYPE4: 10000\n};\n\n// Remanente certificado por la transportadora\nconst certifiedRemanent = 97830000;\n\n// Procesar cada entrada\nconst results = items.map(item => {\n    const inputData = item.json;\n    \n    // Calcular el total de remanente en el cajero\n    let totalRemanent = 0;\n    for (const type in billValues) {\n        if (inputData[type]) {\n            totalRemanent += parseInt(inputData[type]) * billValues[type];\n        }\n    }\n    \n    // Calcular el sobrante\n    const cashSurplus = certifiedRemanent - totalRemanent;\n    \n    return {\n        json: { value: cashSurplus.toString() }\n    };\n});\n\nreturn results;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        100
+      ],
+      "id": "6544fede-e0ae-46ec-a784-b86298feec34",
+      "name": "calculadoraSobra"
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1860,
+        0
+      ],
+      "id": "cd3bd4da-1937-47c1-8022-a11a2d530cb3",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"CÓDIGO\": {{ $json[\"CÓDIGO\"] }}\n}\n ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        -120
+      ],
+      "id": "fa52fd24-6830-42db-aa04-9f68f7e45e3d",
+      "name": "set_json_select_atm_cuadre"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"CÓDIGO\": {{ $json[\"CÓDIGO\"] }}\n}\n ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1560,
+        -120
+      ],
+      "id": "6d391f9d-0cc3-48fd-a9fc-a84189c72b8f",
+      "name": "set_json_select_atm_fecha_inicio_ciclo"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2e79dae5-d9fb-4b44-86fe-43244bdced07",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2060,
+        0
+      ],
+      "id": "97a5f52f-0ca5-48ec-ba0c-aa29c5919128",
+      "name": "set_json_promt_agente_cuadre"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Entrada: La salida del Agente de IA\nconst rawOutput = $input.first().json.output; // Accede al campo \"output\"\n\n// Extraer el contenido JSON eliminando el Markdown (```json y ```)\nconst jsonString = rawOutput\n  .replace(\"```json\", \"\") // Elimina el inicio del bloque Markdown\n  .replace(\"```\", \"\")     // Elimina el final del bloque Markdown\n  .trim();                // Elimina espacios en blanco adicionales\n\n// Parsear la cadena JSON a un objeto\nconst parsedJson = JSON.parse(jsonString);\n\n// Salida: Devolver el JSON limpio\nreturn [{\n  json: parsedJson\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2480,
+        0
+      ],
+      "id": "75922d35-5209-4d39-9667-0cc510501e06",
+      "name": "Code3"
+    },
+    {
+      "parameters": {
+        "operation": "aggregate"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        340,
+        360
+      ],
+      "id": "1aa4573f-04d8-4026-b691-31777cfff278",
+      "name": "MongoDB"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "280426bb-2e1a-4105-9cb5-827e2bd15ef1",
+              "name": "path",
+              "value": "={{ $json.body.pathTira }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -20,
+        360
+      ],
+      "id": "fb67c95e-5ae0-4ee1-8b9e-a5eabd0a3858",
+      "name": "path_historico"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "oCF8eYfMwHY96LWk",
+          "mode": "list",
+          "cachedResultName": "app_hdi_readFile"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        160,
+        360
+      ],
+      "id": "30c4c28e-1c2a-4e90-b6a9-28b5ebe62bf8",
+      "name": "_readFileHistorico"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 220,
+        "width": 640
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        320
+      ],
+      "id": "599992ca-f05f-42db-8310-db530dc05e92",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Lectura archivos",
+        "height": 440,
+        "width": 440
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -180
+      ],
+      "id": "47068e5d-fc25-43b0-965e-0a98b2ee70c9",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Filtro Atm \nSe seleccciona el atm a cuadrar",
+        "height": 260,
+        "width": 420
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        580,
+        -100
+      ],
+      "id": "bf795b6e-ce8d-4092-9a06-c500595b86a8",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Proceso de preparacion de datos para Agente \nSe calculan los datos para el promt del agente",
+        "height": 500,
+        "width": 620
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        -220
+      ],
+      "id": "f9de5a4a-b6da-49c2-849f-d1da8db14549",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Proceso de creacion promt y ejecucion agente cuadre",
+        "height": 300,
+        "width": 620
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2000,
+        -100
+      ],
+      "id": "53703be3-bf54-4365-ac61-d13c3c882bd2",
+      "name": "Sticky Note4"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "path_gestion",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "path_tira",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FiltroAtmSobrantes": {
+      "main": [
+        [
+          {
+            "node": "FiltroEleccionCajero",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "path_gestion": {
+      "main": [
+        [
+          {
+            "node": "_readFile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "_readFile": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "path_tira": {
+      "main": [
+        [
+          {
+            "node": "_readFile1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "_readFile1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "FiltroAtmSobrantes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FiltroEleccionCajero": {
+      "main": [
+        [
+          {
+            "node": "set_json_select_atm_cuadre",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "set_json_tira",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "app_hdi_callProcesssHistorico": {
+      "main": [
+        [
+          {
+            "node": "set_json_select_atm_fecha_inicio_ciclo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_json_tira": {
+      "main": [
+        [
+          {
+            "node": "app_hdi_callAgente_extracDispensed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "app_hdi_callAgente_extracDispensed": {
+      "main": [
+        [
+          {
+            "node": "calculadoraSobra",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_json_select_atm_cuadre": {
+      "main": [
+        [
+          {
+            "node": "app_hdi_callProcesssHistorico",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_json_select_atm_fecha_inicio_ciclo": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "calculadoraSobra": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "set_json_promt_agente_cuadre",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_json_promt_agente_cuadre": {
+      "main": [
+        [
+          {
+            "node": "app_hdi_callAgente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "app_hdi_callAgente": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "path_historico": {
+      "main": [
+        [
+          {
+            "node": "_readFileHistorico",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "_readFileHistorico": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "242c596a-d571-465c-9adb-86797e0548c5",
+  "meta": {
+    "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
+  },
+  "id": "KoojlRLoyucs5Z8z",
+  "tags": []
+}
