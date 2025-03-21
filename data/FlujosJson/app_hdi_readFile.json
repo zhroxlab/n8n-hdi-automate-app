@@ -9,16 +9,16 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        760,
-        0
+        240,
+        -80
       ],
-      "id": "c965c00d-72bc-4443-a4d6-71951a400771",
+      "id": "fd37f47a-ced4-4841-91ac-23c6c5393f2f",
       "name": "Respond to Webhook"
     },
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "8106f96b-6681-473f-8875-edd9751689d5",
+        "path": "app_hdi_readFile",
         "responseMode": "responseNode",
         "options": {
           "rawBody": true
@@ -27,64 +27,100 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -100,
-        100
+        -600,
+        -80
       ],
-      "id": "6346e1e2-0416-4029-8a01-7fb8ee30488d",
+      "id": "8630b7a7-ce70-4043-b57e-bc3d98407b50",
       "name": "Webhook",
       "webhookId": "8106f96b-6681-473f-8875-edd9751689d5"
     },
     {
       "parameters": {
-        "fileSelector": "/Users/imfabra/Developer/repos/app_hdi/data/_gestion/inSara.xlsx",
+        "fileSelector": "={{ $json.path }}",
         "options": {}
       },
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
       "position": [
-        300,
-        0
+        60,
+        -80
       ],
-      "id": "b2d898e3-1d20-4318-9a76-7219c84abca6",
-      "name": "Read/Write Files from Disk"
-    },
-    {
-      "parameters": {
-        "operation": "xlsx",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.extractFromFile",
-      "typeVersion": 1,
-      "position": [
-        520,
-        0
-      ],
-      "id": "49f64366-6e1f-4056-9821-fff50faceefb",
-      "name": "Extract from File"
+      "id": "559c741c-7cd0-4c4f-821a-fdedc094ddad",
+      "name": "Read/Write Files from Disk",
+      "alwaysOutputData": true
     },
     {
       "parameters": {},
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -100,
-        -80
+        -600,
+        80
       ],
-      "id": "586faa2b-0028-452d-a53f-80670be99807",
-      "name": "When clicking ‘Test workflow’"
+      "id": "b58ec7d6-94fd-4519-add6-2ddbb1585577",
+      "name": "When clicking ‘Test workflow’",
+      "disabled": true
     },
     {
       "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"path\": \"./data/_gestion/inSara.xlsx\"\n}\n",
         "options": {}
       },
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        100,
+        -400,
+        80
+      ],
+      "id": "0f0276b2-de11-4024-acf4-2fc2cbebcb57",
+      "name": "SetPathManual",
+      "notes": "Se ingresa manualmente la ruta del archivo que se quiere leer desde disco."
+    },
+    {
+      "parameters": {
+        "jsCode": "\nreturn [{ path: $json[\"path\"] !== undefined ? $json[\"path\"] : $json[\"body\"][\"path\"] }];\n\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -140,
         -80
       ],
-      "id": "0bd332d1-af27-4f53-9244-314e460e11fe",
-      "name": "Edit Fields"
+      "id": "ddc3183d-2362-4a6a-86c8-e15e96d5728f",
+      "name": "ValidateSourcePath",
+      "notes": "Valida cual de los dos orígenes que indican la ruta de archivo tienen un valor y lo envía al siguiente nodo."
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"path\": \"a string\"\n}"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -600,
+        -260
+      ],
+      "id": "27caf77b-09b5-413b-93f1-029f22a02df4",
+      "name": "When Executed by Another Workflow",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "content": "## Recomendaciones de uso \n***Workflow: app_hdi_readFile***\n\n* Mantenga inactivo el nodo de click debido a que si se activa presentará conflicto de ejecución con el nodo **When Executed by another workflow**. Sólo activar si se quiere ejecutar manualmente.",
+        "height": 260,
+        "width": 480,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -180,
+        140
+      ],
+      "id": "09672e32-36de-4d8e-a36a-1a1ba4227eb6",
+      "name": "Sticky Note"
     }
   ],
   "pinData": {},
@@ -93,30 +129,14 @@
       "main": [
         [
           {
-            "node": "Read/Write Files from Disk",
+            "node": "ValidateSourcePath",
             "type": "main",
             "index": 0
           }
         ]
-      ]
-    },
-    "Respond to Webhook": {
-      "main": [
-        []
       ]
     },
     "Read/Write Files from Disk": {
-      "main": [
-        [
-          {
-            "node": "Extract from File",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Extract from File": {
       "main": [
         [
           {
@@ -131,18 +151,40 @@
       "main": [
         [
           {
-            "node": "Edit Fields",
+            "node": "SetPathManual",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Edit Fields": {
+    "SetPathManual": {
+      "main": [
+        [
+          {
+            "node": "ValidateSourcePath",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ValidateSourcePath": {
       "main": [
         [
           {
             "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "ValidateSourcePath",
             "type": "main",
             "index": 0
           }
@@ -154,10 +196,10 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "b868af64-7258-4b47-8591-5e8213705ae1",
+  "versionId": "1c7cf2df-c3cf-4cf2-965d-484d897e1c8b",
   "meta": {
-    "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
+    "instanceId": "21edc338617340ff34f5f0ec75b8b8ea4ea9d11a41bf55228658f47b1e558fd0"
   },
-  "id": "oCF8eYfMwHY96LWk",
+  "id": "TAGWBUo5KLMv4m4p",
   "tags": []
 }
