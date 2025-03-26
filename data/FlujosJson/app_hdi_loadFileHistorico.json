@@ -1,0 +1,203 @@
+{
+  "name": "app_hdi_loadFileHistorico",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "app_hdi_loadFileHistorico",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        -20
+      ],
+      "id": "0d4a23a0-81fe-4b86-8062-a39f2a95495c",
+      "name": "Webhook",
+      "webhookId": "8106f96b-6681-473f-8875-edd9751689d5"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        180
+      ],
+      "id": "bc93aa35-9a0a-4511-ac1e-0cc114282e61",
+      "name": "When clicking ‘Test workflow’",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "command": "=python \"{{ $json.pathPython }}\"  \"{{ $json.pathExcel }}\" \"{{ $json.connectionStringMongo }}\" \"{{ $json.nombreDB }}\" \"{{ $json.nombreColection }}\" \"{{ $json.lote }}\""
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        200,
+        -20
+      ],
+      "id": "a0eb2297-cd4e-4d15-85b4-2b901626ea11",
+      "name": "Execute Command"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"output\": \"{{ $json.output }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        640,
+        -20
+      ],
+      "id": "3acfac04-b414-4629-88a0-963a3187703b",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "content": "## Recomendaciones de uso \n***Workflow: app_hdi_loadFileHistorico***\n\nMantenga inactivo el nodo de click debido a que si se activa presentará conflicto de ejecución con el nodo **When Executed by another workflow** y el nodo **Webhook**. Sólo activar click si se quiere ejecutar manualmente desactivando los otros dos nodos.\n\nEn el nodo **Execute Command** se invoca un script con los siguientes parámetros:\n- Python \"ubicación de script Python\"\n- Parametro1: \"Path archivo excel\"\n- Parametro2: \"mongodb://usuario:clave@server:puerto\"\n- Parametro3: \"nombre_db\"\n- Parametro4: \"nombre_coleccion\"\n- Parametro5: \"numero de registros por lote\"\n\nPara el uso del **Webhook** tome de ejemplo la estructura del nodo **SetJSONManual** para ser usado como body en el consumo POST.",
+        "height": 380,
+        "width": 600,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        680,
+        180
+      ],
+      "id": "8a3524c1-e594-457c-85d2-71f0a3f56570",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"pathPython\": \"./data/_scripts/migrar_excel_mongo.py\",\n  \"pathExcel\": \"./data/_historico/HISTORICO.xlsx\",\n  \"connectionStringMongo\": \"mongodb://user_n8n:n8n2025@localhost:27017\",\n  \"nombreDB\": \"db_mongo_n8n\",\n  \"nombreColection\": \"historico_db\",\n  \"lote\":\"10000\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -280,
+        180
+      ],
+      "id": "238d27d1-8575-4cef-a4b7-3304937f440e",
+      "name": "SetJSONManual",
+      "disabled": true,
+      "notes": "Se ingresa manualmente la ruta del archivo que se quiere leer desde disco."
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json.stdout\nvar inputLimpio = input.replace(/\\s*\\n\\s*/g, ' ')\n\nreturn {\n  \"output\": inputLimpio\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        -20
+      ],
+      "id": "fe195b79-d440-4832-91e7-453bb406ebd9",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "jsCode": "const webhookData = $json.body || {};  // Datos del Webhook (si existen)\nconst setData = $json || {};           // Datos del nodo Set (si existen)\n\n// Fusionar datos, priorizando los que no son undefined\nconst finalData = {\n    pathPython: webhookData.pathPython || setData.pathPython || null,\n    pathExcel: webhookData.pathExcel || setData.pathExcel || null,\n    connectionStringMongo: webhookData.connectionStringMongo || setData.connectionStringMongo || null,\n    nombreDB: webhookData.nombreDB || setData.nombreDB || null,\n    nombreColection: webhookData.nombreColection || setData.nombreColection || null,\n  lote: webhookData.lote || setData.lote || null\n};\n\n// Retornar los datos procesados\nreturn [{ json: finalData }];\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -40,
+        -20
+      ],
+      "id": "9f9eff07-f738-4c44-bed1-d4236b7cf77b",
+      "name": "ValidateSourceData",
+      "notes": "Valida cual de los dos orígenes que indican la ruta de archivo tienen un valor y lo envía al siguiente nodo."
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "ValidateSourceData",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "SetJSONManual",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Command": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SetJSONManual": {
+      "main": [
+        [
+          {
+            "node": "ValidateSourceData",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ValidateSourceData": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f86da584-db50-4da6-a3b0-e9f59953bb2e",
+  "meta": {
+    "instanceId": "21edc338617340ff34f5f0ec75b8b8ea4ea9d11a41bf55228658f47b1e558fd0"
+  },
+  "id": "Phxo3azWe4XejdQS",
+  "tags": []
+}
