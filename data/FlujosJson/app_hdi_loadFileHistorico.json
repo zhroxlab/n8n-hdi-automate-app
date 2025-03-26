@@ -43,7 +43,9 @@
         -20
       ],
       "id": "a0eb2297-cd4e-4d15-85b4-2b901626ea11",
-      "name": "Execute Command"
+      "name": "Execute Command",
+      "notesInFlow": true,
+      "notes": "Llama un comando Python"
     },
     {
       "parameters": {
@@ -62,8 +64,8 @@
     },
     {
       "parameters": {
-        "content": "## Recomendaciones de uso \n***Workflow: app_hdi_loadFileHistorico***\n\nMantenga inactivo el nodo de click debido a que si se activa presentará conflicto de ejecución con el nodo **When Executed by another workflow** y el nodo **Webhook**. Sólo activar click si se quiere ejecutar manualmente desactivando los otros dos nodos.\n\nEn el nodo **Execute Command** se invoca un script con los siguientes parámetros:\n- Python \"ubicación de script Python\"\n- Parametro1: \"Path archivo excel\"\n- Parametro2: \"mongodb://usuario:clave@server:puerto\"\n- Parametro3: \"nombre_db\"\n- Parametro4: \"nombre_coleccion\"\n- Parametro5: \"numero de registros por lote\"\n\nPara el uso del **Webhook** tome de ejemplo la estructura del nodo **SetJSONManual** para ser usado como body en el consumo POST.",
-        "height": 380,
+        "content": "## Recomendaciones de uso \n***Workflow: app_hdi_loadFileHistorico***\n\nMantenga inactivo el nodo de click debido a que si se activa presentará conflicto de ejecución con el nodo **When Executed by another workflow** y el nodo **Webhook**. Sólo activar click si se quiere ejecutar manualmente desactivando los otros dos nodos.\n\nPara invocar el script python se requiere instalar las siguientes librerías en el servidor donde corre n8n:\n* pandas, pymongo, openpyxl (pip install pandas pymongo openpyxl)\n\nEn el nodo **Execute Command** se invoca un script con los siguientes parámetros:\n\n* Python \"ubicación de script Python\"\n* Parametro1: \"Path archivo excel\"\n* Parametro2: \"mongodb://usuario:clave@server:puerto\"\n* Parametro3: \"nombre_db\"\n* Parametro4: \"nombre_coleccion\"\n* Parametro5: \"numero de registros por lote\"\n\nPara el uso del **Webhook** tome de ejemplo la estructura del nodo **SetJSONManual** para ser usado como body en el consumo POST.",
+        "height": 500,
         "width": 600,
         "color": 4
       },
@@ -104,7 +106,9 @@
         -20
       ],
       "id": "fe195b79-d440-4832-91e7-453bb406ebd9",
-      "name": "Code"
+      "name": "Code",
+      "notesInFlow": true,
+      "notes": "Limpia la respuesta del comando."
     },
     {
       "parameters": {
@@ -118,6 +122,7 @@
       ],
       "id": "9f9eff07-f738-4c44-bed1-d4236b7cf77b",
       "name": "ValidateSourceData",
+      "notesInFlow": true,
       "notes": "Valida cual de los dos orígenes que indican la ruta de archivo tienen un valor y lo envía al siguiente nodo."
     }
   ],
@@ -194,7 +199,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "f86da584-db50-4da6-a3b0-e9f59953bb2e",
+  "versionId": "b69e7cc7-beaa-465e-a794-1a90284e2547",
   "meta": {
     "instanceId": "21edc338617340ff34f5f0ec75b8b8ea4ea9d11a41bf55228658f47b1e558fd0"
   },
