@@ -1,0 +1,183 @@
+{
+  "name": "app-hdi-tiraToDB",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -120,
+        0
+      ],
+      "id": "c627f5c6-cc54-4e3e-8129-03dd507a7fbd",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "command": "=\nnode data/_scripts/code-data-tira-to-db/data_tira_to_db.js {{ $json.rutaDiebold }} {{ $json.rutaNCR }} "
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        260,
+        0
+      ],
+      "id": "887a9a33-52d7-44a9-b0d2-1e6c418df956",
+      "name": "Execute Command"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "123e1833-0175-4c03-8f13-1663b88854df",
+              "name": "rutaNCR",
+              "value": "./data/_scripts/code-data-tira-to-db/pull-tira/sbmdebst10_auth_tira_ncr031725.rpt",
+              "type": "string"
+            },
+            {
+              "id": "5ebc55ed-7dc8-447f-8a17-1cfe54fd8f37",
+              "name": "rutaDiebold",
+              "value": "./data/_scripts/code-data-tira-to-db/pull-tira/sbmdebst10_auth_tira_die031725.rpt",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        80,
+        0
+      ],
+      "id": "98dda092-6b77-40eb-94d2-b815aa0669ab",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfb2f6ad-8a60-4dcd-9f51-fbf4b98adb7c",
+              "name": "exitCode",
+              "value": "={{ $json.exitCode }}",
+              "type": "number"
+            },
+            {
+              "id": "80d3e305-7633-40fb-8bcb-3fa98273aedf",
+              "name": "=stdout",
+              "value": "={{ $json.stdout }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        440,
+        0
+      ],
+      "id": "11119548-1ba1-4a54-bf54-90f5c0435217",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "content": "## Procesar Tiras y Guardar en MongoDB  \n\n> ### Consideraciones  \n> - Verificar que los archivos existen en las rutas indicadas.  \n> - Confirmar que `data_tira_to_db.js` esté actualizado y funcione correctamente.  \n> - Asegurar que MongoDB esté corriendo y accesible.  \n> - Revisar en `data_tira_to_db.js` que la conexión a la base de datos esté configurada correctamente.  \n\n### 1. Entrada (Nodo Set)  \nRecibe JSON con rutas de los archivos:  \n```json\n[\n  {\n    \"rutaNCR\": \"./data/.../sbmdebst10_auth_tira_ncr031725.rpt\",\n    \"rutaDiebold\": \"./data/.../sbmdebst10_auth_tira_die031725.rpt\"\n  }\n]\n```\n### 2. Ejecución (Nodo Execute Command)\nEjecuta el script con:\n```bash\nnode data/_scripts/code-data-tira-to-db/data_tira_to_db.js {{$json.rutaDiebold}} {{$json.rutaNCR}}\n```\n### 3. Salida (Nodo Set)\nRespuesta esperada:\n```json\n[\n  {\n    \"exitCode\": 0,\n    \"stdout\": \"Procesamiento completado\\n294 documentos actualizados en Diebold\\n4897 en NCR\\n...\"\n  }\n]\n```",
+        "height": 760,
+        "width": 1020,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -260,
+        180
+      ],
+      "id": "a88df3c8-7fae-4d07-a4b5-0f34314ab059",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 240,
+        "width": 880,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -180,
+        -60
+      ],
+      "id": "35fce7a0-d4a9-482f-8c34-691a602b1fae",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {
+    "Edit Fields": [
+      {
+        "json": {
+          "rutaNCR": "./data/_scripts/code-data-tira-to-db/pull-tira/sbmdebst10_auth_tira_ncr031725.rpt",
+          "rutaDiebold": "./data/_scripts/code-data-tira-to-db/pull-tira/sbmdebst10_auth_tira_die031725.rpt"
+        }
+      }
+    ],
+    "Execute Command": [
+      {
+        "json": {
+          "exitCode": 0,
+          "stderr": "",
+          "stdout": "Conectado a MongoDB\nProcesando archivo Diebold...\ndiebold: 0 documentos insertados, 294 documentos actualizados\nProcesando archivo NCR...\nncr: 0 documentos insertados, 4897 documentos actualizados\nProcesamiento completado\nConexión a MongoDB cerrada"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Command": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b004bd3e-579d-427a-a351-3afa8ce4628f",
+  "meta": {
+    "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
+  },
+  "id": "b6CUJVHb3IEuiEIt",
+  "tags": []
+}
