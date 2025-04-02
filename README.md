@@ -1,72 +1,84 @@
-![Banner image](https://user-images.githubusercontent.com/10284570/173569848-c624317f-42b1-45a6-ab09-f0ea3c247648.png)
+# Automate App
 
-# n8n - Secure Workflow Automation for Technical Teams
+Este proyecto es una aplicación de automatización que utiliza n8n para crear flujos de trabajo automatizados, con integración de MongoDB para el almacenamiento de datos y soporte para archivos Excel.
 
-n8n is a workflow automation platform that gives technical teams the flexibility of code with the speed of no-code. With 400+ integrations, native AI capabilities, and a fair-code license, n8n lets you build powerful automations while maintaining full control over your data and deployments.
+## Requisitos Previos
 
-![n8n.io - Screenshot](https://raw.githubusercontent.com/n8n-io/n8n/master/assets/n8n-screenshot-readme.png)
+- Node.js (versión 14 o superior)
+- npm (incluido con Node.js)
+- MongoDB instalado y ejecutándose localmente o una conexión a MongoDB Atlas
 
-## Key Capabilities
+## Instalación
 
-- **Code When You Need It**: Write JavaScript/Python, add npm packages, or use the visual interface
-- **AI-Native Platform**: Build AI agent workflows based on LangChain with your own data and models
-- **Full Control**: Self-host with our fair-code license or use our [cloud offering](https://app.n8n.cloud/login)
-- **Enterprise-Ready**: Advanced permissions, SSO, and air-gapped deployments
-- **Active Community**: 400+ integrations and 900+ ready-to-use [templates](https://n8n.io/workflows)
-
-## Quick Start
-
-Try n8n instantly with [npx](https://docs.n8n.io/hosting/installation/npm/) (requires [Node.js](https://nodejs.org/en/)):
-
-```
-npx n8n
+1. Clona el repositorio:
+```bash
+git clone [URL_DEL_REPOSITORIO]
+cd automate_app
 ```
 
-Or deploy with [Docker](https://docs.n8n.io/hosting/installation/docker/):
-
-```
-docker volume create n8n_data
-docker run -it --rm --name n8n -p 5678:5678 -v n8n_data:/home/node/.n8n docker.n8n.io/n8nio/n8n
+2. Instala las dependencias:
+```bash
+npm install
 ```
 
-Access the editor at http://localhost:5678
+3. Instala n8n globalmente (opcional, pero recomendado):
+```bash
+npm install n8n -g
+```
 
-## Resources
+## Configuración
 
-- 📚 [Documentation](https://docs.n8n.io)
-- 🔧 [400+ Integrations](https://n8n.io/integrations)
-- 💡 [Example Workflows](https://n8n.io/workflows)
-- 🤖 [AI & LangChain Guide](https://docs.n8n.io/langchain/)
-- 👥 [Community Forum](https://community.n8n.io)
-- 📖 [Community Tutorials](https://community.n8n.io/c/tutorials/28)
+1. Asegúrate de que MongoDB esté ejecutándose en tu sistema local o configura la conexión a MongoDB Atlas.
 
-## Support
+2. Para iniciar n8n, puedes usar cualquiera de estos métodos:
 
-Need help? Our community forum is the place to get support and connect with other users:
-[community.n8n.io](https://community.n8n.io)
+   a. Usando n8n instalado globalmente:
+   ```bash
+   n8n start
+   ```
 
-## License
+   b. Usando el script de n8n en node_modules:
+   ```bash
+   ./node_modules/.bin/n8n start
+   ```
 
-n8n is [fair-code](https://faircode.io) distributed under the [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md) and [n8n Enterprise License](https://github.com/n8n-io/n8n/blob/master/LICENSE_EE.md).
+3. Una vez iniciado, n8n estará disponible en:
+   - http://localhost:5678
 
-- **Source Available**: Always visible source code
-- **Self-Hostable**: Deploy anywhere
-- **Extensible**: Add your own nodes and functionality
+## Estructura del Proyecto
 
-[Enterprise licenses](mailto:license@n8n.io) available for additional features and support.
+- `data/`: Directorio para almacenar archivos de datos
+- `node_modules/`: Dependencias del proyecto
 
-Additional information about the license model can be found in the [docs](https://docs.n8n.io/reference/license/).
+## Dependencias Principales
 
-## Contributing
+- n8n: ^1.85.4 - Plataforma de automatización de flujos de trabajo
+- mongodb: ^6.15.0 - Cliente de MongoDB para Node.js
+- xlsx: ^0.20.2 - Biblioteca para manejo de archivos Excel
 
-Found a bug 🐛 or have a feature idea ✨? Check our [Contributing Guide](https://github.com/n8n-io/n8n/blob/master/CONTRIBUTING.md) to get started.
+## Uso
 
-## Join the Team
+1. Inicia n8n siguiendo las instrucciones de configuración
+2. Accede a la interfaz web de n8n en http://localhost:5678
+3. Crea tus flujos de trabajo utilizando los nodos disponibles
+4. Utiliza los nodos de MongoDB para interactuar con tu base de datos
+5. Usa los nodos de Excel para procesar archivos .xlsx
 
-Want to shape the future of automation? Check out our [job posts](https://n8n.io/careers) and join our team!
+## Desarrollo
 
-## What does n8n mean?
+El proyecto utiliza:
+- Lefthook para git hooks
+- Turbo para optimización de build
+- Configuraciones de VS Code para desarrollo
 
-**Short answer:** It means "nodemation" and is pronounced as n-eight-n.
+## Contribución
 
-**Long answer:** "I get that question quite often (more often than I expected) so I decided it is probably best to answer it here. While looking for a good name for the project with a free domain I realized very quickly that all the good ones I could think of were already taken. So, in the end, I chose nodemation. 'node-' in the sense that it uses a Node-View and that it uses Node.js and '-mation' for 'automation' which is what the project is supposed to help with. However, I did not like how long the name was and I could not imagine writing something that long every time in the CLI. That is when I then ended up on 'n8n'." - **Jan Oberhauser, Founder and CEO, n8n.io**
+1. Haz fork del repositorio
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+## Licencia
+
+Este proyecto está bajo la Licencia ISC.
