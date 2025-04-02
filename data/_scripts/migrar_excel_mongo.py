@@ -16,7 +16,7 @@ collection_name = sys.argv[4]  # Nombre de la colección en MongoDB
 batch_size = int(sys.argv[5])  # Tamaño del lote
 
 # Conectar a MongoDB
-client = MongoClient(mongo_uri)
+client = MongoClient('mongodb://localhost:27017/') # MongoClient(mongo_uri)
 db = client[db_name]
 collection = db[collection_name]
 

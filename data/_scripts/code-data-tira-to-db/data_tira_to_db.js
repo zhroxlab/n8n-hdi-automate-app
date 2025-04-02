@@ -4,7 +4,7 @@ const { MongoClient } = require('mongodb');
 
 // Configuración de MongoDB
 const mongoUrl = 'mongodb://localhost:27017';
-const dbName = 'cajeros_automaticos';
+const dbName = 'db_app_hdi';
 
 // Rutas de los archivos
 const rutaDiebold = process.argv[2] // './data/_scripts/code-data-tira-to-db/pull-tira/sbmdebst10_auth_tira_die031725.rpt';
@@ -20,8 +20,8 @@ async function procesarArchivos() {
     console.log('Conectado a MongoDB');
 
     const db = client.db(dbName);
-    const coleccionDiebold = db.collection('diebold');
-    const coleccionNCR = db.collection('ncr');
+    const coleccionDiebold = db.collection('tira_diebold');
+    const coleccionNCR = db.collection('tira_ncr');
 
     // Procesar archivos
     console.log('Procesando archivo Diebold...');

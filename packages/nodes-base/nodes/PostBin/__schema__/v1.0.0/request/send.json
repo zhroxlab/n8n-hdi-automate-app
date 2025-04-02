@@ -1,8 +1,0 @@
-{
-    "type": "object",
-    "properties": {
-        "requestId": {
-            "type": "string"
-        }
-    }
-}
