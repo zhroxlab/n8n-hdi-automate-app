@@ -6,8 +6,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -240,
-        -340
+        240,
+        -380
       ],
       "id": "6bcaaa9e-c79e-4dcd-8f2b-3c885a6e4423",
       "name": "When clicking ‘Test workflow’"
@@ -35,8 +35,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        0,
-        -340
+        480,
+        -380
       ],
       "id": "ccf5dede-12f1-4c64-b9bc-0300c7641c58",
       "name": "Edit Fields"
@@ -50,8 +50,8 @@
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.1,
       "position": [
-        300,
-        -100
+        600,
+        -180
       ],
       "id": "321c3f3d-ecdb-4ab7-aa79-afe05fad0a08",
       "name": "MongoDB",
@@ -74,7 +74,7 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.8,
       "position": [
-        1060,
+        1220,
         -100
       ],
       "id": "f59f7f39-b220-4bae-8b50-bc94cfaab856",
@@ -124,7 +124,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.1,
       "position": [
-        780,
+        1040,
         -100
       ],
       "id": "c165db56-3004-4f66-a235-21142fa22abb",
@@ -147,8 +147,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        500,
-        -100
+        760,
+        -180
       ],
       "id": "500bbe74-b809-4a03-87a3-3ce566a175be",
       "name": "Edit Fields2"
@@ -161,8 +161,8 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        -240,
-        -100
+        240,
+        -180
       ],
       "id": "3759f004-4602-471b-a7eb-23282a8806c7",
       "name": "When Executed by Another Workflow",
@@ -180,8 +180,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -240,
-        100
+        240,
+        20
       ],
       "id": "b07e63ab-96f8-475e-a431-8d03ad2c7bb5",
       "name": "Webhook1",
@@ -195,7 +195,7 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        1680,
+        1760,
         -100
       ],
       "id": "64613531-9eb1-4d44-b602-b6d8dae256b3",
@@ -219,8 +219,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        420,
-        80
+        760,
+        -20
       ],
       "id": "f2a32478-be74-4409-b2dd-b957c729a8e6",
       "name": "Edit Fields3"
@@ -286,8 +286,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        240,
-        -340
+        720,
+        -380
       ],
       "id": "49999818-4432-476b-a142-6fd1b8c0a4df",
       "name": "Execute Workflow"
@@ -302,8 +302,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -780,
-        -360
+        -240,
+        -420
       ],
       "id": "9248a7c3-49e1-4a63-b913-bd744ce9f272",
       "name": "Sticky Note2"
@@ -582,8 +582,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        40,
-        -100
+        440,
+        -20
       ],
       "id": "4037eb38-40d8-4516-8b0c-f5b789776c17",
       "name": "ValidateSourcePath",
@@ -668,7 +668,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1440,
+        1560,
         -100
       ],
       "id": "911e30a6-f02d-46d6-98ff-ed58a6da217a",
@@ -895,7 +895,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "be35791c-5203-439e-b100-32d934be1dcc",
+  "versionId": "8c20965e-7746-4ada-9f82-6b67cfbb155c",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
