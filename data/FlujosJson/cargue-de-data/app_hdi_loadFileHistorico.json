@@ -13,10 +13,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -480,
-        -20
+        0,
+        0
       ],
-      "id": "0d4a23a0-81fe-4b86-8062-a39f2a95495c",
+      "id": "1c670bb6-a7d5-48a0-a12a-29242bd0c16f",
       "name": "Webhook",
       "webhookId": "8106f96b-6681-473f-8875-edd9751689d5"
     },
@@ -25,10 +25,10 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -480,
-        180
+        0,
+        200
       ],
-      "id": "bc93aa35-9a0a-4511-ac1e-0cc114282e61",
+      "id": "0575e5b4-e64a-4a5f-800d-8769adda54ef",
       "name": "When clicking ‘Test workflow’",
       "disabled": true
     },
@@ -39,10 +39,10 @@
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
-        200,
-        -20
+        680,
+        0
       ],
-      "id": "a0eb2297-cd4e-4d15-85b4-2b901626ea11",
+      "id": "951871c9-9242-4abe-b0c7-66b4bee65989",
       "name": "Execute Command",
       "notesInFlow": true,
       "notes": "Llama un comando Python"
@@ -56,10 +56,10 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        640,
-        -20
+        1120,
+        0
       ],
-      "id": "3acfac04-b414-4629-88a0-963a3187703b",
+      "id": "5739bb87-92c0-42c0-9919-017d6c7bc245",
       "name": "Respond to Webhook"
     },
     {
@@ -72,25 +72,25 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        680,
-        180
+        1160,
+        200
       ],
-      "id": "8a3524c1-e594-457c-85d2-71f0a3f56570",
+      "id": "66508a05-770a-473b-83ef-af3c445a668c",
       "name": "Sticky Note"
     },
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "{\n  \"pathPython\": \"./data/_scripts/migrar_excel_mongo.py\",\n  \"pathExcel\": \"./data/_historico/HISTORICO.xlsx\",\n  \"connectionStringMongo\": \"mongodb://user_n8n:n8n2025@localhost:27017\",\n  \"nombreDB\": \"db_mongo_n8n\",\n  \"nombreColection\": \"historico_db\",\n  \"lote\":\"10000\"\n}\n",
+        "jsonOutput": "{\n  \"pathPython\": \"./data/_scripts/migrar_excel_mongo.py\",\n  \"pathExcel\": \"./data/_historico/HISTORICO.xlsx\",\n  \"connectionStringMongo\": \"mongodb://localhost:27017\",\n  \"nombreDB\": \"db_app_hdi\",\n  \"nombreColection\": \"historico_atms\",\n  \"lote\":\"10000\"\n}\n",
         "options": {}
       },
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -280,
-        180
+        220,
+        200
       ],
-      "id": "238d27d1-8575-4cef-a4b7-3304937f440e",
+      "id": "6c30725e-d306-4d4d-926f-0d5515bd0521",
       "name": "SetJSONManual",
       "disabled": true,
       "notes": "Se ingresa manualmente la ruta del archivo que se quiere leer desde disco."
@@ -102,10 +102,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        420,
-        -20
+        900,
+        0
       ],
-      "id": "fe195b79-d440-4832-91e7-453bb406ebd9",
+      "id": "30c0a3b6-4577-4716-865a-10bcc90dc894",
       "name": "Code",
       "notesInFlow": true,
       "notes": "Limpia la respuesta del comando."
@@ -117,13 +117,28 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -40,
-        -20
+        440,
+        0
       ],
-      "id": "9f9eff07-f738-4c44-bed1-d4236b7cf77b",
+      "id": "da38f853-b730-4293-aa0d-7882fb6b14d7",
       "name": "ValidateSourceData",
       "notesInFlow": true,
       "notes": "Valida cual de los dos orígenes que indican la ruta de archivo tienen un valor y lo envía al siguiente nodo."
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"pathPython\": \"./data/_scripts/migrar_excel_mongo.py\",\n  \"pathExcel\": \"./data/_historico/HISTORICO.xlsx\",\n  \"connectionStringMongo\": \"mongodb://user_n8n:n8n2025@localhost:27017\",\n  \"nombreDB\": \"db_mongo_n8n\",\n  \"nombreColection\": \"historico_db\",\n  \"lote\":\"10000\"\n}\n"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        -200
+      ],
+      "id": "f87b1ab0-ab0e-4bb1-bb02-e919938fb78c",
+      "name": "When Executed by Another Workflow",
+      "notesInFlow": true
     }
   ],
   "pinData": {},
@@ -193,16 +208,27 @@
           }
         ]
       ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "ValidateSourceData",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "b69e7cc7-beaa-465e-a794-1a90284e2547",
+  "versionId": "9c936667-7651-460f-9a89-3dadd39576c7",
   "meta": {
-    "instanceId": "21edc338617340ff34f5f0ec75b8b8ea4ea9d11a41bf55228658f47b1e558fd0"
+    "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
   },
-  "id": "Phxo3azWe4XejdQS",
+  "id": "YI4MYTbFkAJ0sEmo",
   "tags": []
 }

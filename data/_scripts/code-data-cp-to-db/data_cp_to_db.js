@@ -5,8 +5,14 @@ const XLSX = require('xlsx');
 const mongoUrl = 'mongodb://localhost:27017';
 const dbName = 'db_app_hdi';
 
-// Ruta del archivo Excel
-const rutaCP = './data/_cp/cp.xlsx';
+// Obtener la ruta del archivo desde los argumentos de la línea de comandos
+const rutaCP = process.argv[2];
+
+if (!rutaCP) {
+  console.error('Error: Debe proporcionar la ruta del archivo Excel como argumento');
+  console.error('Ejemplo: node data_cp_to_db.js ./data/_cp/cp.xlsx');
+  process.exit(1);
+}
 
 // Función principal
 async function procesarArchivoCP() {
@@ -21,6 +27,7 @@ async function procesarArchivoCP() {
     const coleccionCP = db.collection('date_cp');
 
     // Leer el archivo Excel
+    console.log(`Procesando archivo: ${rutaCP}`);
     const workbook = XLSX.readFile(rutaCP);
     const sheetName = workbook.SheetNames[0]; // Obtener el nombre de la primera hoja
     const worksheet = workbook.Sheets[sheetName];

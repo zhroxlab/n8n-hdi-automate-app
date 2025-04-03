@@ -1,16 +1,17 @@
 {
-  "name": "app-hdi-tiraToDB",
+  "name": "app_hdi_tiraToDB",
   "nodes": [
     {
       "parameters": {},
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -120,
-        0
+        -660,
+        180
       ],
       "id": "c627f5c6-cc54-4e3e-8129-03dd507a7fbd",
-      "name": "When clicking ‘Test workflow’"
+      "name": "When clicking ‘Test workflow’",
+      "disabled": true
     },
     {
       "parameters": {
@@ -19,7 +20,7 @@
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
-        260,
+        120,
         0
       ],
       "id": "887a9a33-52d7-44a9-b0d2-1e6c418df956",
@@ -48,11 +49,12 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        80,
-        0
+        -480,
+        180
       ],
       "id": "98dda092-6b77-40eb-94d2-b815aa0669ab",
-      "name": "Edit Fields"
+      "name": "Edit Fields",
+      "disabled": true
     },
     {
       "parameters": {
@@ -77,11 +79,12 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        440,
-        0
+        380,
+        -240
       ],
       "id": "11119548-1ba1-4a54-bf54-90f5c0435217",
-      "name": "Edit Fields1"
+      "name": "Edit Fields1",
+      "disabled": true
     },
     {
       "parameters": {
@@ -93,8 +96,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -260,
-        180
+        -180,
+        380
       ],
       "id": "a88df3c8-7fae-4d07-a4b5-0f34314ab059",
       "name": "Sticky Note"
@@ -103,17 +106,93 @@
       "parameters": {
         "content": "",
         "height": 240,
-        "width": 880,
+        "width": 1040,
         "color": 5
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -180,
+        -220,
         -60
       ],
       "id": "35fce7a0-d4a9-482f-8c34-691a602b1fae",
       "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "\n{\n  \"rutaNCR\": \"./data/_scripts/code-data-tira-to-db/pull-tira/sbmdebst10_auth_tira_ncr031725.rpt\",\n  \"rutaDiebold\": \"./data/_scripts/code-data-tira-to-db/pull-tira/sbmdebst10_auth_tira_die031725.rpt\"\n}"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -480,
+        -180
+      ],
+      "id": "e79222c8-d5be-4fc6-80f6-9037082ccf17",
+      "name": "When Executed by Another Workflow",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "app_hdi_readFile",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        0
+      ],
+      "id": "439e0dba-daf4-425c-8eb2-07504d096799",
+      "name": "Webhook1",
+      "webhookId": "8106f96b-6681-473f-8875-edd9751689d5"
+    },
+    {
+      "parameters": {
+        "jsCode": "const webhookData = $json.body || {};  // Datos del Webhook (si existen)\nconst setData = $json || {};           // Datos del nodo Set (si existen)\n\n// Fusionar datos, priorizando los que no son undefined\nconst finalData = {\n    rutaNCR: webhookData.rutaNCR || setData.rutaNCR || null,\n    rutaDiebold: webhookData.rutaDiebold || setData.rutaDiebold || null\n};\n\n// Retornar los datos procesados\nreturn [{ json: finalData }];\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -140,
+        0
+      ],
+      "id": "80583a99-8ec8-4fb1-a355-7b24fdcf9c4f",
+      "name": "ValidateSourcePath",
+      "notes": "Valida cual de los dos orígenes que indican la ruta de archivo tienen un valor y lo envía al siguiente nodo."
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json.stdout\nvar inputLimpio = input.replace(/\\s*\\n\\s*/g, ' ')\n\nreturn {\n  \"output\": inputLimpio\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        380,
+        0
+      ],
+      "id": "4c281fa5-723f-4f8a-abe4-29b4e7beb1be",
+      "name": "Code",
+      "notesInFlow": true,
+      "notes": "Limpia la respuesta del comando."
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        600,
+        0
+      ],
+      "id": "62c21f1f-5c86-4adb-bfcc-f655972bd9f8",
+      "name": "Respond to Webhook"
     }
   ],
   "pinData": {
@@ -122,15 +201,6 @@
         "json": {
           "rutaNCR": "./data/_scripts/code-data-tira-to-db/pull-tira/sbmdebst10_auth_tira_ncr031725.rpt",
           "rutaDiebold": "./data/_scripts/code-data-tira-to-db/pull-tira/sbmdebst10_auth_tira_die031725.rpt"
-        }
-      }
-    ],
-    "Execute Command": [
-      {
-        "json": {
-          "exitCode": 0,
-          "stderr": "",
-          "stdout": "Conectado a MongoDB\nProcesando archivo Diebold...\ndiebold: 0 documentos insertados, 294 documentos actualizados\nProcesando archivo NCR...\nncr: 0 documentos insertados, 4897 documentos actualizados\nProcesamiento completado\nConexión a MongoDB cerrada"
         }
       }
     ]
@@ -151,7 +221,7 @@
       "main": [
         [
           {
-            "node": "Execute Command",
+            "node": "ValidateSourcePath",
             "type": "main",
             "index": 0
           }
@@ -162,7 +232,51 @@
       "main": [
         [
           {
-            "node": "Edit Fields1",
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "ValidateSourcePath",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "ValidateSourcePath",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ValidateSourcePath": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
             "type": "main",
             "index": 0
           }
@@ -174,7 +288,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "b004bd3e-579d-427a-a351-3afa8ce4628f",
+  "versionId": "50ffd39a-2aa2-4998-8066-d48e15ff936e",
   "meta": {
     "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
   },

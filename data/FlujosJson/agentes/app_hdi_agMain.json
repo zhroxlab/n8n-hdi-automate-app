@@ -1,0 +1,905 @@
+{
+  "name": "app_hdi_agMain",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -340
+      ],
+      "id": "6bcaaa9e-c79e-4dcd-8f2b-3c885a6e4423",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "47176d6a-8fc6-4d04-b2ef-0446c52017d7",
+              "name": "caseRule",
+              "value": "sobrantes",
+              "type": "string"
+            },
+            {
+              "id": "136ca3ea-309a-4770-a67e-7e6c12d0fc32",
+              "name": "dataAtm",
+              "value": " {     \"CÓDIGO FONDO\": 1,     \"CIUDAD\": \"MEDELLIN\",     \"CÓDIGO\": 8141,     \"NOMBRE CAJERO\": \"ATM PUERTA DEL NORTE 4\",     \"FECHA\": 20250217,     \" CONTADORES \": 238540000,     \" CONTABILIDAD \": 35820000,     \" REMANENTES \": 97830000,     \" PROVISIONES \": 296000000,     \" DIFERENCIA \": -4550000,     \" ESTADO \": \"SOBRANTE\",     \" TIPO DIFERENCIA \": \"REVISAR TIRA\",     \" SOBRANTE \": 4550000,     \"RESPONSABLE\": \"SARA\",     \"TDV\": \"TRANSBANK\"   } ",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        -340
+      ],
+      "id": "ccf5dede-12f1-4c64-b9bc-0300c7641c58",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "collection": "prompts_list",
+        "options": {},
+        "query": "={ \"nombre\": \"{{ $json.caseRule }}\" } "
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        300,
+        -100
+      ],
+      "id": "321c3f3d-ecdb-4ab7-aa79-afe05fad0a08",
+      "name": "MongoDB",
+      "credentials": {
+        "mongoDb": {
+          "id": "J6HuzpFN5ghJjIF7",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=## ** Ejecuciones de tools **\n- Prueba tool_cp_data con el siguiente json:\n```json\n{\n  \"codigo\": {{ $json.dataATM[\"CÓDIGO\"] }}\n}\n```\n\n- Prueba tool_agente_tira_atm con el siguiente json:\n```json\n  {\n    \"marcaAtm\": \"texto\", <- marca viene del valor de \"marca\" del tool_cp_date, convertir en minuscula.\n    \"idAtm\":  {{ $json.dataATM['CÓDIGO'] }}\n  }\n```\n\n- Prueba tool_historico_date con el siguiente json:\n```json\n{\n    \"idAtm\": {{ $json.dataATM['CÓDIGO'] }},\n    \"fechaAtm\": {{ $json.dataATM.FECHA }}\n}\n```\n\n- Prueba tool_atm_calculadora con el siguiente json:\n```json\n  {\n    \"certificadoTDV\": {{ $json.dataATM[' REMANENTES '] }},\n    \"dispensado\": { <- los valores de dispensado viene de tool_agente_tira_atm\n      \"TYPE1\": 1023,\n      \"TYPE2\": 1023,\n      \"TYPE3\": 1023,\n      \"TYPE4\": 1023\n    },\n    \"prov_Total\": {\n      \"TYPE1\": 1023,\n      \"TYPE2\": 1023,\n      \"TYPE3\": 1023,\n      \"TYPE4\": 1023\n    },\n    \"billValues\": { <- los valores de billValues vienen de tool_cp_data\n      \"TYPE1\": 50000,\n      \"TYPE2\": 10000,\n      \"TYPE3\": 10000,\n      \"TYPE4\": 20000\n    }\n  }\n```\n\n## ** Instrucciones ***\n{{ $json.dataPrompt }}\n\n### JSON de entrada:\n{{ JSON.stringify($json.dataATM) }}\n",
+        "options": {
+          "systemMessage": "=",
+          "maxIterations": 15
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        1060,
+        -100
+      ],
+      "id": "f59f7f39-b220-4bae-8b50-bc94cfaab856",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        980,
+        80
+      ],
+      "id": "76e88d81-c4ee-4be6-890c-081d4aa028f5",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "bDrVHByV826BPw8y",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        220
+      ],
+      "id": "ca59eb32-7c9d-4701-9182-0d2eb74f853b",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        780,
+        -100
+      ],
+      "id": "c165db56-3004-4f66-a235-21142fa22abb",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "136ca3ea-309a-4770-a67e-7e6c12d0fc32",
+              "name": "dataPrompt",
+              "value": "={{ $json.prompt }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        500,
+        -100
+      ],
+      "id": "500bbe74-b809-4a03-87a3-3ce566a175be",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "\n  {\n    \"caseRule\": \"sobrantes\",\n    \"dataAtm\": {\n      \"CÓDIGO FONDO\": 1,\n      \"CIUDAD\": \"MEDELLIN\",\n      \"CÓDIGO\": 8141,\n      \"NOMBRE CAJERO\": \"ATM PUERTA DEL NORTE 4\",\n      \"FECHA\": 20250217,\n      \" CONTADORES \": 238540000,\n      \" CONTABILIDAD \": 35820000,\n      \" REMANENTES \": 97830000,\n      \" PROVISIONES \": 296000000,\n      \" DIFERENCIA \": -4550000,\n      \" ESTADO \": \"SOBRANTE\",\n      \" TIPO DIFERENCIA \": \"REVISAR TIRA\",\n      \" SOBRANTE \": 4550000,\n      \"RESPONSABLE\": \"SARA\",\n      \"TDV\": \"TRANSBANK\"\n    }\n  }\n"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -240,
+        -100
+      ],
+      "id": "3759f004-4602-471b-a7eb-23282a8806c7",
+      "name": "When Executed by Another Workflow",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "app_hdi_readFile",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        100
+      ],
+      "id": "b07e63ab-96f8-475e-a431-8d03ad2c7bb5",
+      "name": "Webhook1",
+      "webhookId": "8106f96b-6681-473f-8875-edd9751689d5",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1680,
+        -100
+      ],
+      "id": "64613531-9eb1-4d44-b602-b6d8dae256b3",
+      "name": "Respond to Webhook",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "136ca3ea-309a-4770-a67e-7e6c12d0fc32",
+              "name": "dataATM",
+              "value": "={{ $json.dataAtm }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        420,
+        80
+      ],
+      "id": "f2a32478-be74-4409-b2dd-b957c729a8e6",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "content": "## tool_historico_date\n### Entrada\n```json\n{\n    \"idAtm\": 8141,\n    \"fechaAtm\": \"20250217\"\n}\n```\n\n### Salida:\n```json\n{\n  \"fecha\": 20250215\n}\n```",
+        "height": 440,
+        "width": 320,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1180,
+        380
+      ],
+      "id": "a2f7d679-01a8-47b7-8892-aa7b26e2f68f",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "dr8bcnG2aTPdO9p7",
+          "mode": "list",
+          "cachedResultName": "app_hdi_agMain"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "caseRule": "={{ $json.caseRule }}",
+            "dataAtm": "={{ $json.dataAtm }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "caseRule",
+              "displayName": "caseRule",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "dataAtm",
+              "displayName": "dataAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        -340
+      ],
+      "id": "49999818-4432-476b-a142-6fd1b8c0a4df",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {
+        "content": "### Ejemplo json _agMain\n### Entrada\n```json\n\n  {\n    \"caseRule\": \"sobrantes\",\n    \"dataAtm\": {\n      \"CÓDIGO FONDO\": 1,\n      \"CIUDAD\": \"MEDELLIN\",\n      \"CÓDIGO\": 8141,\n      \"NOMBRE CAJERO\": \"ATM PUERTA DEL NORTE 4\",\n      \"FECHA\": 20250217,\n      \" CONTADORES \": 238540000,\n      \" CONTABILIDAD \": 35820000,\n      \" REMANENTES \": 97830000,\n      \" PROVISIONES \": 296000000,\n      \" DIFERENCIA \": -4550000,\n      \" ESTADO \": \"SOBRANTE\",\n      \" TIPO DIFERENCIA \": \"REVISAR TIRA\",\n      \" SOBRANTE \": 4550000,\n      \"RESPONSABLE\": \"SARA\",\n      \"TDV\": \"TRANSBANK\"\n    }\n  }\n\n```\n\n### Salida:\n```json\n\n\n```",
+        "height": 680,
+        "width": 420,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -780,
+        -360
+      ],
+      "id": "9248a7c3-49e1-4a63-b913-bd744ce9f272",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"dataATM\": \n  {\n    \"CÓDIGO FONDO\": 1,\n    \"CIUDAD\": \"MEDELLIN\",\n    \"CÓDIGO\": 8141,\n    \"NOMBRE CAJERO\": \"ATM PUERTA DEL NORTE 4\",\n    \"FECHA\": 20250217,\n    \"CONTADORES\": 238540000,\n    \"CONTABILIDAD\": 35820000,\n    \" REMANENTES \": 97830000,\n    \" PROVISIONES \": 296000000,\n    \" DIFERENCIA \": -4550000,\n    \" ESTADO \": \"SOBRANTE\",\n    \" TIPO DIFERENCIA \": \"REVISAR TIRA\",\n    \" SOBRANTE \": 4550000,\n    \"RESPONSABLE\": \"SARA\",\n    \"TDV\": \"string\",\n    \"TRANSBANK\": \"string\"\n  }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        2040,
+        220
+      ],
+      "id": "39cd57be-61e0-4063-8f37-b173dfe6652e",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "content": "## tool_atm_calculadora\n### Entrada\n```json\n  {\n    \"certificadoTDV\": 97830000,\n    \"dispensado\": {\n      \"TYPE1\": 1023,\n      \"TYPE2\": 1023,\n      \"TYPE3\": 1023,\n      \"TYPE4\": 1023\n    },\n    \"prov_Total\": {\n      \"TYPE1\": 1023,\n      \"TYPE2\": 1023,\n      \"TYPE3\": 1023,\n      \"TYPE4\": 1023\n    },\n    \"billValues\": {\n      \"TYPE1\": 50000,\n      \"TYPE2\": 10000,\n      \"TYPE3\": 10000,\n      \"TYPE4\": 20000\n    }\n  }\n```\n\n### Salida:\n```json\n{\n  \"faltante\": 188620000\n}\n```",
+        "height": 640,
+        "width": 340,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1540,
+        380
+      ],
+      "id": "095ede64-2d79-4210-84eb-6075afdcd55e",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "name": "tool_historico_date",
+        "description": "Dado un id de cajero y una fecha específica, consulta el histórico y devuelve la fecha válida de corte anterior disponible. Usa MongoDB y lógica interna para determinarla.\n",
+        "workflowId": {
+          "__rl": true,
+          "value": "NCkJEUXLgsZlgKLO",
+          "mode": "list",
+          "cachedResultName": "app_hdi_historicoDate"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "idAtm": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('idAtm', ``, 'number') }}",
+            "fechaAtm": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fechaAtm', ``, 'number') }}"
+          },
+          "matchingColumns": [
+            "dataAtm"
+          ],
+          "schema": [
+            {
+              "id": "idAtm",
+              "displayName": "idAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "fechaAtm",
+              "displayName": "fechaAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.1,
+      "position": [
+        1400,
+        220
+      ],
+      "id": "f9559d29-4909-4edf-a647-ba6ab89960b1",
+      "name": "tool_historico_date"
+    },
+    {
+      "parameters": {
+        "name": "tool_agente_tira_atm",
+        "description": "Dado un id de cajero y la marca del ATM, consulta la tira usando un agente de IA especializado para extraer el número de billetes dispensado del ATM. Devuelve un objeto con los valores por tipo (TYPE1, TYPE2, etc.).",
+        "workflowId": {
+          "__rl": true,
+          "value": "xIMlEdnRvJ5OxDFV",
+          "mode": "list",
+          "cachedResultName": "app_hdi_agTira"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "idAtm": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('idAtm', ``, 'number') }}",
+            "marcaAtm": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('marcaAtm', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "marcaAtm",
+              "displayName": "marcaAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "idAtm",
+              "displayName": "idAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.1,
+      "position": [
+        1560,
+        220
+      ],
+      "id": "babcd459-44e8-435d-9896-ebd04b675c7a",
+      "name": "tool_agente_tira_atm"
+    },
+    {
+      "parameters": {
+        "content": "## tool_cp_data\n### Entrada\n```json\n{\n  \"codigo\": 8141\n}\n```\n\n### Salida:\n```json\n[\n  {\n    \"_id\": \"67ec41cf7381a1b9c04e0d0e\",\n    \"codigo\": 8141,\n    \"__EMPTY\": 3086,\n    \"admon\": \"TRANSBANK\",\n    \"codigo_suc\": 976,\n    \"cupo\": 296000000,\n    \"disp_mf\": \"Dispensador\",\n    \"fact_tdv\": \"URBANO\",\n    \"fechaProcesamiento\": \"2025-04-02T00:14:19.055Z\",\n    \"fondo\": \"MEDELLIN\",\n    \"gav1\": 50000,\n    \"gav2\": 50000,\n    \"gav3\": 20000,\n    \"gav4\": 10000,\n    \"gav5\": 0,\n    \"marca\": \"NCR\",\n    \"nombre\": \"ATM PUERTA DEL NORTE 4\",\n    \"nombre_corto\": \"PUERT_NORT4\"\n  }\n]\n```",
+        "height": 640,
+        "width": 360,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        380
+      ],
+      "id": "104548e8-b359-4a6b-8242-59e9c754ca4c",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Consulta la colección 'date_cp' en MongoDB usando el código del cajero. Devuelve los datos de configuración y parámetros operativos del ATM, incluyendo fondo, cupo, denominaciones (gavetas), y más.\n",
+        "collection": "date_cp",
+        "options": {},
+        "query": "={{ $fromAI('MongoQuery','consulta optimizada de mongoDB') }}"
+      },
+      "type": "n8n-nodes-base.mongoDbTool",
+      "typeVersion": 1.1,
+      "position": [
+        1720,
+        220
+      ],
+      "id": "29687110-8d38-4638-9007-acb8d2d031f6",
+      "name": "tool_cp_data",
+      "credentials": {
+        "mongoDb": {
+          "id": "J6HuzpFN5ghJjIF7",
+          "name": "MongoDB account"
+        }
+      },
+      "notes": "Consulta la colección 'date_cp' en MongoDB usando el código del cajero. Devuelve los datos de configuración y parámetros operativos del ATM, incluyendo fondo, cupo, denominaciones (gavetas), y más.\n"
+    },
+    {
+      "parameters": {
+        "name": "tool_atm_calculadora",
+        "description": "Calcula del ATM usando los datos provistos: dispensado, certificadoTDV, prov_Total y billValues. Retorna un JSON con el faltante calculado.\n",
+        "workflowId": {
+          "__rl": true,
+          "value": "olaQbIhYtGacj1jb",
+          "mode": "list",
+          "cachedResultName": "app-hdi-calculadoraAtms"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "certificadoTDV": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('certificadoTDV', ``, 'number') }}",
+            "dispensado": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('dispensado', ``, 'string') }}",
+            "billValues": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('billValues', ``, 'string') }}",
+            "prov_Total": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('prov_Total', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "certificadoTDV",
+              "displayName": "certificadoTDV",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "dispensado",
+              "displayName": "dispensado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            },
+            {
+              "id": "prov_Total",
+              "displayName": "prov_Total",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            },
+            {
+              "id": "billValues",
+              "displayName": "billValues",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.1,
+      "position": [
+        1240,
+        220
+      ],
+      "id": "c48bb4a7-4247-45ad-9b63-de9753753d09",
+      "name": "tool_atm_calculadora"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rawOutput = $input.first().json.output;\n\n// Convierte saltos de línea (\\n) en saltos HTML <br>\nconst formateado = rawOutput.replace(/\\n/g, \"<br>\");\n\nreturn [\n  {\n    json: {\n      htmlResumen: formateado\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        -360
+      ],
+      "id": "8dbb100c-fbe2-4476-8b30-3f3a520bef3d",
+      "name": "Code3",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const webhookData = $json.body || {};  // Datos del Webhook (si existen)\nconst setData = $json || {};           // Datos del nodo Set (si existen)\n\n// Fusionar datos, priorizando los que no son undefined\nconst finalData = {\n    caseRule: webhookData.caseRule || setData.caseRule || null,\n    dataAtm: webhookData.dataAtm || setData.dataAtm || null\n};\n\n// Retornar los datos procesados\nreturn [{ json: finalData }];\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        -100
+      ],
+      "id": "4037eb38-40d8-4516-8b0c-f5b789776c17",
+      "name": "ValidateSourcePath",
+      "notes": "Valida cual de los dos orígenes que indican la ruta de archivo tienen un valor y lo envía al siguiente nodo."
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n\n<html>\n<head>\n  <meta charset=\"UTF-8\" />\n  <title>My HTML document</title>\n</head>\n<body>\n  <div class=\"container\">\n    <h1>Salida </h1>\n    <div class=\"out\">\n      {{ $json.htmlResumen }}\n    </div>\n  </div>\n</body>\n</html>\n\n<style>\n.container {\n  background-color: #ffffff;\n  text-align: center;\n  padding: 16px;\n  border-radius: 8px;\n}\n\n.out {\n  text-align: left;\n}\n\nh1 {\n  color: #ff6d5a;\n  font-size: 24px;\n  font-weight: bold;\n  padding: 8px;\n}\n\nh2 {\n  color: #909399;\n  font-size: 18px;\n  font-weight: bold;\n  padding: 8px;\n}\n</style>\n\n<script>\nconsole.log(\"Hello World!\");\n</script>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1680,
+        -360
+      ],
+      "id": "b8a2c24e-124b-4910-bb3a-8778c80cd3cb",
+      "name": "HTML",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Busca registros en la colección historico_db",
+        "collection": "historico_db",
+        "options": {
+          "limit": 1,
+          "sort": "{\n  \"FECHA\": -1\n}",
+          "projection": "{\n  \"CÓDIGO\": 1,\n  \"FECHA\": 1\n}"
+        },
+        "query": "={{ $fromAI('MongoQuery','consulta optimizada de mongoDB') }}\n"
+      },
+      "type": "n8n-nodes-base.mongoDbTool",
+      "typeVersion": 1.1,
+      "position": [
+        1900,
+        220
+      ],
+      "id": "4b4e23cb-ab80-44a4-97f8-b035eb1514e9",
+      "name": "historicosDB",
+      "credentials": {
+        "mongoDb": {
+          "id": "J6HuzpFN5ghJjIF7",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Reglas para usar las tools:\n- **tool_cp_data** -> necesita el json concatenado del atm.\n- **tool_agente_tira_atm** -> necesita ejecutar a tool_cp_data para tomar el valor del campo marca.\n- **tool_historico_date** -> necesita el json concatenado del atm.\n- **tool_atm_calculadora** -> necesita el json del cajero concatenado, ejecutar tool_agente_tira_atm y ejecutar tool_cp_data\n\n## Pruebas:\n- prueba la tool_cp_data. solo dame el json de entrada que le pasas y el json de salida que da.\n- prueba la tool_agente_tira_atm (primero ejecuta tool_cp_data para tomar el valor de marca). solo dame el json de entrada que le pasas y el json de salida que da.\n- prueba la tool_historico_date. solo dame el json de entrada que le pasas y el json de salida que da.\n- utiliza tool_cp_data, del resutado toma el valor de marca y el codigo para utilizar tool_agente_tira_atm, de la salida de tool_agente_tira_atm toma el resultado, los valores de gavs de tool_cp_data yREMANENTES del json concatenado para utilizar tool_atm_calculadora.",
+        "height": 380,
+        "width": 920
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        820,
+        1040
+      ],
+      "id": "8e8e866a-6319-4c83-8f5a-aa5c06e639d3",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "## tool_agente_tira_atm\n### Entrada\n```json\n  {\n    \"marcaAtm\": \"ncr\",\n    \"idAtm\": 8141\n  }\n```\n\n### Salida:\n```json\n  {\n    \"TYPE1\": 03361,\n    \"TYPE2\": 00000,\n    \"TYPE3\": 01924,\n    \"TYPE4\": 01725\n  }\n```",
+        "height": 440,
+        "width": 300,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        860,
+        380
+      ],
+      "id": "f01b47ba-5cc4-4d58-a925-33433198b334",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Entrada: La salida del Agente de IA\nconst rawOutput = $input.first().json.output; // Accede al campo \"output\"\n\n// Extraer el contenido JSON eliminando el Markdown (```json y ```)\nconst jsonString = rawOutput\n  .replace(\"```json\", \"\") // Elimina el inicio del bloque Markdown\n  .replace(\"```\", \"\")     // Elimina el final del bloque Markdown\n  .trim();                // Elimina espacios en blanco adicionales\n\n// Parsear la cadena JSON a un objeto\nconst parsedJson = JSON.parse(jsonString);\n\n// Salida: Devolver el JSON limpio\nreturn [{\n  json: parsedJson\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        -100
+      ],
+      "id": "911e30a6-f02d-46d6-98ff-ed58a6da217a",
+      "name": "Code"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "ValidateSourcePath",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "ValidateSourcePath",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        []
+      ]
+    },
+    "tool_historico_date": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tool_agente_tira_atm": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tool_cp_data": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tool_atm_calculadora": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ValidateSourcePath": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        []
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "be35791c-5203-439e-b100-32d934be1dcc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
+  },
+  "id": "dr8bcnG2aTPdO9p7",
+  "tags": []
+}

@@ -1,0 +1,276 @@
+{
+  "name": "app_hdi_cpToDB",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -980,
+        -40
+      ],
+      "id": "a021f13d-aa72-47ce-8499-09e23862e47f",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "command": "=node data/_scripts/code-data-cp-to-db/data_cp_to_db.js {{ $json.rutaCP }}"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        -280
+      ],
+      "id": "b7829bec-cbd2-4468-9991-b4ed8310cf3a",
+      "name": "Execute Command"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "123e1833-0175-4c03-8f13-1663b88854df",
+              "name": "rutaCP",
+              "value": "./data/_cp/cp.xlsx",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -780,
+        -40
+      ],
+      "id": "4a03471f-f416-444f-b8ce-8daa64579963",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 240,
+        "width": 1040,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1140,
+        -340
+      ],
+      "id": "c3d68a55-bf11-4090-b7ef-e13f4de2c3d7",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "\n  {\n    \"rutaCP\": \"./data/_cp/cp.xlsx\"\n  }\n"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1400,
+        -400
+      ],
+      "id": "b9ecf301-8d00-416d-8b3d-6d97080416e7",
+      "name": "When Executed by Another Workflow",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "app_hdi_readFile",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1400,
+        -160
+      ],
+      "id": "3f68e41b-62bb-4fa3-b686-5f20d97c3e7b",
+      "name": "Webhook1",
+      "webhookId": "8106f96b-6681-473f-8875-edd9751689d5"
+    },
+    {
+      "parameters": {
+        "jsCode": "const webhookData = $json.body || {};  // Datos del Webhook (si existen)\nconst setData = $json || {};           // Datos del nodo Set (si existen)\n\n// Fusionar datos, priorizando los que no son undefined\nconst finalData = {\n    rutaCP: webhookData.rutaCP || setData.rutaCP || null\n};\n\n// Retornar los datos procesados\nreturn [{ json: finalData }];\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1060,
+        -280
+      ],
+      "id": "c3d4e910-e14b-4166-bc85-981f6c913c57",
+      "name": "ValidateSourcePath",
+      "notes": "Valida cual de los dos orígenes que indican la ruta de archivo tienen un valor y lo envía al siguiente nodo."
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json.stdout\nvar inputLimpio = input.replace(/\\s*\\n\\s*/g, ' ')\n\nreturn {\n  \"output\": inputLimpio\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -540,
+        -280
+      ],
+      "id": "29ce3161-f0ee-4935-b540-60d1ca21a7b0",
+      "name": "Code",
+      "notesInFlow": true,
+      "notes": "Limpia la respuesta del comando."
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -320,
+        -280
+      ],
+      "id": "5a8ea72f-9be8-401e-8d37-c0607912a085",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "Lc0DSFyiFLEcQLVQ",
+          "mode": "list",
+          "cachedResultName": "app_hdi_cpToDB"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "rutaCP": "={{ $json.rutaCP }}"
+          },
+          "matchingColumns": [
+            "rutaCP"
+          ],
+          "schema": [
+            {
+              "id": "rutaCP",
+              "displayName": "rutaCP",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -560,
+        -40
+      ],
+      "id": "f69f3654-bb1e-4ed0-a656-897ce0526dec",
+      "name": "Execute Workflow"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Command": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "ValidateSourcePath",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "ValidateSourcePath",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ValidateSourcePath": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b7251e9a-04eb-452a-834c-35ac4eddb81b",
+  "meta": {
+    "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
+  },
+  "id": "Lc0DSFyiFLEcQLVQ",
+  "tags": []
+}

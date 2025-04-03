@@ -1,0 +1,279 @@
+{
+  "name": "app_hdi_historicoDate",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -60,
+        -240
+      ],
+      "id": "5bdab8b9-efc3-4438-87e8-5f7a23c02117",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c349faef-b476-406a-9aa7-784f84f0e875",
+              "name": "idAtm",
+              "value": 8141,
+              "type": "number"
+            },
+            {
+              "id": "4139beb0-054e-4a28-bc62-2ce11381cafa",
+              "name": "fechaAtm",
+              "value": 20250217,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        180,
+        -240
+      ],
+      "id": "bbcc8a98-f8c7-4898-bc47-d2abdf5294c1",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "collection": "historico_atms",
+        "options": {},
+        "query": "={\"CÓDIGO\": {{ $json.idAtm }}} "
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        120,
+        40
+      ],
+      "id": "16390e98-b0e8-448c-87de-a34adce4f187",
+      "name": "MongoDB",
+      "credentials": {
+        "mongoDb": {
+          "id": "J6HuzpFN5ghJjIF7",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtener los datos de entrada del nodo en n8n\nconst registros = $input.first().json.listHistorico;\n\n// Fecha inicial a validar\nlet fechaInicial = $input.first().json.fechaAtm;\n\n// Convertir la fecha a un formato manejable (YYYYMMDD → Date)\nconst obtenerFechaAnterior = (fecha) => {\n    let año = Math.floor(fecha / 10000);\n    let mes = Math.floor((fecha % 10000) / 100);\n    let dia = fecha % 100;\n\n    // Restar un día\n    dia -= 1;\n\n    // Si el día es 0, retroceder al mes anterior\n    if (dia === 0) {\n        mes -= 1;\n\n        // Si el mes es 0, retroceder al año anterior y establecer diciembre\n        if (mes === 0) {\n            mes = 12;\n            año -= 1;\n        }\n\n        // Obtener el último día del mes anterior\n        const diasEnMes = new Date(año, mes, 0).getDate();\n        dia = diasEnMes;\n    }\n\n    // Construir la nueva fecha en formato YYYYMMDD\n    return año * 10000 + mes * 100 + dia;\n};\n\n// Restar un día correctamente\nfechaInicial = obtenerFechaAnterior(fechaInicial);\n\n\n// Ordenar los registros por fecha en orden descendente para facilitar la búsqueda de la fecha más cercana anterior\nregistros.sort((a, b) => b.json[\"FECHA\"] - a.json[\"FECHA\"]);\n\n// Buscar la fecha que cumpla la condición\nlet fechaValida = \"00000000\"; \n\nfor (const reg of registros) {\n    if (reg.json[\"FECHA\"] <= fechaInicial && reg.json[\"REMANENTES\"] > 0 && reg.json[\"PROVISIONES\"] > 0) {\n        fechaValida = reg.json[\"FECHA\"];\n        break; // Se detiene en la primera fecha válida encontrada\n    }\n}\n\n// Retornar la fecha encontrada en el formato requerido (solo la fecha, sin texto adicional)\nreturn [{ json: { fecha: fechaValida } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        -60
+      ],
+      "id": "bbd892c8-3e98-4f3b-9432-c785306a65b0",
+      "name": "LogicaFechaHistorico"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        500,
+        -60
+      ],
+      "id": "ab259fb4-e615-4a66-af68-28b07f251587",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nreturn {\"listHistorico\": $input.all()};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        300,
+        40
+      ],
+      "id": "4fe6ae0b-9394-44b2-a26f-732318461fd4",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "\n  {\n      \"idAtm\": 8141,\n      \"fechaAtm\": 20250217\n  }\n"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -60,
+        -80
+      ],
+      "id": "c717e7ac-c9e4-489c-9c61-14fb1f52a55c",
+      "name": "When Executed by Another Workflow",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "NCkJEUXLgsZlgKLO",
+          "mode": "list",
+          "cachedResultName": "app_hdi_historicoDate"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "idAtm": "={{ $json.idAtm }}",
+            "fechaAtm": "={{ $json.fechaAtm }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "idAtm",
+              "displayName": "idAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "fechaAtm",
+              "displayName": "fechaAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        500,
+        -240
+      ],
+      "id": "6cf0334b-502c-4676-a260-e50b569e9964",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {
+        "content": "## Ejemplo json _historicoDate\n### Entrada\n```json\n{\n    \"idAtm\": 8141,\n    \"fechaAtm\": \"20250217\"\n}\n```\n\n### Salida:\n```json\n{\n  \"fecha\": 20250215\n}\n```",
+        "height": 440,
+        "width": 380,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -500,
+        -320
+      ],
+      "id": "1e9ce3fe-7e3c-48a3-a101-985a724da8fa",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LogicaFechaHistorico": {
+      "main": [
+        []
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "LogicaFechaHistorico",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c69cf268-9ee1-425b-a5be-e89250c9e73d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
+  },
+  "id": "NCkJEUXLgsZlgKLO",
+  "tags": []
+}

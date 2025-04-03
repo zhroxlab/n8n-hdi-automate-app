@@ -1,0 +1,282 @@
+{
+  "name": "app_hdi_agTira",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d9df1528-5b36-463a-b6fa-670c95526403",
+              "name": "marcaAtm",
+              "value": "ncr",
+              "type": "string"
+            },
+            {
+              "id": "e2df52f6-7346-4592-b2ce-e5637da89be3",
+              "name": "idAtm",
+              "value": 8141,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -260,
+        -180
+      ],
+      "id": "5cb054bc-3c28-4d21-aafa-307764c27037",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "collection": "=tira_{{ $json.marcaAtm }}",
+        "options": {},
+        "query": "={\"numeroCajero\": \"{{ $json.idAtm }}\"} "
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        -260,
+        20
+      ],
+      "id": "bad73bc3-c5bd-48bd-bcab-91297ae9fc71",
+      "name": "MongoDB",
+      "credentials": {
+        "mongoDb": {
+          "id": "J6HuzpFN5ghJjIF7",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "\n{\n  \"marcaAtm\": \"ncr\",\n  \"idAtm\": 8141\n}\n"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -620,
+        20
+      ],
+      "id": "26e94793-6387-4123-b7d2-1e3a6e0fe740",
+      "name": "When Executed by Another Workflow",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "xIMlEdnRvJ5OxDFV",
+          "mode": "list",
+          "cachedResultName": "app_hdi_agTira"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "idAtm": "={{ $json.idAtm }}",
+            "marcaAtm": "={{ $json.marcaAtm }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "idAtm",
+              "displayName": "idAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "marcaAtm",
+              "displayName": "marcaAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        120,
+        -180
+      ],
+      "id": "b4f06042-c9df-4cc5-926a-35171697772f",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres un agente especializado en analizar tiras de cajero. Tu tarea es procesar una tira (input) y extraer únicamente los números de billetes restantes (\"DISPENSED\") correspondientes a la primera transmisión identificada por \"OPCODE = JJI\". Esta sección contiene la información de \"CASH DISPENSED\" organizada por gavetas: TYPE1, TYPE2, TYPE3 y TYPE4.\n\n**IMPORTANTE**: Devuelve únicamente el resultado en formato JSON, sin ningún comentario, explicación o texto adicional. La estructura del JSON debe ser exactamente:\n\n{ \"TYPE1\": \"<valor>\", \"TYPE2\": \"<valor>\", \"TYPE3\": \"<valor>\", \"TYPE4\": \"<valor>\" }\n\nPor ejemplo, si la transmisión muestra:\n\nTYPE1 = 00010\nTYPE2 = 00000\nTYPE3 = 00020\nTYPE4 = 00034\n\nLa salida debe ser: { \"TYPE1\": 00010, \"TYPE2\": 00000, \"TYPE3\": 00020, \"TYPE4\": 00034 }\n\nAsegura que esa informacion de dispesado corresponde a la primera transmision.\n\nAhora, procesa la siguiente tira: \n\n{{ $json.tira }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        -20,
+        20
+      ],
+      "id": "a7b3a4d0-8991-44ae-b61d-8ca01622e22f",
+      "name": "AgentTira",
+      "alwaysOutputData": false,
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        20,
+        180
+      ],
+      "id": "a6df84d5-a658-47e4-a374-0484f9b65c78",
+      "name": "ModelTira",
+      "credentials": {
+        "openAiApi": {
+          "id": "bDrVHByV826BPw8y",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Entrada: La salida del Agente de IA\nconst rawOutput = $input.first().json.output; // Accede al campo \"output\"\n\n// Extraer el contenido JSON eliminando el Markdown (```json y ```)\nconst jsonString = rawOutput\n  .replace(\"```json\", \"\") // Elimina el inicio del bloque Markdown\n  .replace(\"```\", \"\")     // Elimina el final del bloque Markdown\n  .trim();                // Elimina espacios en blanco adicionales\n\n// Parsear la cadena JSON a un objeto\nconst parsedJson = JSON.parse(jsonString);\n\n// Convertir los valores a números\nconst formattedJson = {\n  TYPE1: parseInt(parsedJson.TYPE1, 10), // \"03361\" -> 3361 (number)\n  TYPE2: parseInt(parsedJson.TYPE2, 10), // \"0000\" -> 0 (number)\n  TYPE3: parseInt(parsedJson.TYPE3, 10), // \"01924\" -> 1924 (number)\n  TYPE4: parseInt(parsedJson.TYPE4, 10)  // \"01725\" -> 1725 (number)\n};\n\n// Salida: Devolver el JSON con valores numéricos\nreturn {\n  json: formattedJson\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        380,
+        20
+      ],
+      "id": "4c8b8847-9fe0-4fca-84cb-21f46ccf57d1",
+      "name": "stringToJson"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -620,
+        -180
+      ],
+      "id": "366598bb-ce01-446a-b4ab-207e44cbcd30",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "content": "## Ejemplo json _agTira \n### Entrada\n```json\n  {\n    \"marcaAtm\": \"ncr\",\n    \"idAtm\": 8141\n  }\n```\n\n### Salida:\n```json\n  {\n    \"TYPE1\": 03361,\n    \"TYPE2\": 00000,\n    \"TYPE3\": 01924,\n    \"TYPE4\": 01725\n  }\n```",
+        "height": 440,
+        "width": 380,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1060,
+        -200
+      ],
+      "id": "6a860a1e-554c-4ea9-8770-378488e02ad1",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB": {
+      "main": [
+        [
+          {
+            "node": "AgentTira",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ModelTira": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AgentTira",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AgentTira": {
+      "main": [
+        [
+          {
+            "node": "stringToJson",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "94d76590-8891-4baf-b6c4-915b4db43b9e",
+  "meta": {
+    "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
+  },
+  "id": "xIMlEdnRvJ5OxDFV",
+  "tags": []
+}
