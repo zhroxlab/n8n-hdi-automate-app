@@ -19,7 +19,7 @@
             {
               "id": "c349faef-b476-406a-9aa7-784f84f0e875",
               "name": "idAtm",
-              "value": 8141,
+              "value": 9,
               "type": "number"
             },
             {
@@ -55,6 +55,7 @@
       ],
       "id": "16390e98-b0e8-448c-87de-a34adce4f187",
       "name": "MongoDB",
+      "alwaysOutputData": true,
       "credentials": {
         "mongoDb": {
           "id": "J6HuzpFN5ghJjIF7",
@@ -64,12 +65,12 @@
     },
     {
       "parameters": {
-        "jsCode": "// Obtener los datos de entrada del nodo en n8n\nconst registros = $input.first().json.listHistorico;\n\n// Fecha inicial a validar\nlet fechaInicial = $input.first().json.fechaAtm;\n\n// Convertir la fecha a un formato manejable (YYYYMMDD → Date)\nconst obtenerFechaAnterior = (fecha) => {\n    let año = Math.floor(fecha / 10000);\n    let mes = Math.floor((fecha % 10000) / 100);\n    let dia = fecha % 100;\n\n    // Restar un día\n    dia -= 1;\n\n    // Si el día es 0, retroceder al mes anterior\n    if (dia === 0) {\n        mes -= 1;\n\n        // Si el mes es 0, retroceder al año anterior y establecer diciembre\n        if (mes === 0) {\n            mes = 12;\n            año -= 1;\n        }\n\n        // Obtener el último día del mes anterior\n        const diasEnMes = new Date(año, mes, 0).getDate();\n        dia = diasEnMes;\n    }\n\n    // Construir la nueva fecha en formato YYYYMMDD\n    return año * 10000 + mes * 100 + dia;\n};\n\n// Restar un día correctamente\nfechaInicial = obtenerFechaAnterior(fechaInicial);\n\n\n// Ordenar los registros por fecha en orden descendente para facilitar la búsqueda de la fecha más cercana anterior\nregistros.sort((a, b) => b.json[\"FECHA\"] - a.json[\"FECHA\"]);\n\n// Buscar la fecha que cumpla la condición\nlet fechaValida = \"00000000\"; \n\nfor (const reg of registros) {\n    if (reg.json[\"FECHA\"] <= fechaInicial && reg.json[\"REMANENTES\"] > 0 && reg.json[\"PROVISIONES\"] > 0) {\n        fechaValida = reg.json[\"FECHA\"];\n        break; // Se detiene en la primera fecha válida encontrada\n    }\n}\n\n// Retornar la fecha encontrada en el formato requerido (solo la fecha, sin texto adicional)\nreturn [{ json: { fecha: fechaValida } }];\n"
+        "jsCode": "const input = $input.first().json;\n\nfunction obtenerFechaAnteriorConRemanentes(input) {\n  try {\n    const { idAtm, fechaAtm, listHistorico } = input;\n\n    if (!idAtm) {\n      throw new Error('Se requiere el ID del cajero (idAtm)');\n    }\n\n    if (!fechaAtm || !/^\\d{8}$/.test(fechaAtm)) {\n      throw new Error('Se requiere una fecha válida en formato YYYYMMDD');\n    }\n\n    const registros = listHistorico.map(r => r.json); // extraer json de cada registro\n    const fechaNum = parseInt(fechaAtm, 10);\n\n    if (!registros || registros.length === 0) {\n      return \"sin cierre de ciclo\";\n    }\n\n    // Ordenar los registros por fecha en orden descendente\n    registros.sort((a, b) => b.FECHA - a.FECHA);\n\n    // Buscar el primer registro anterior con REMANENTES válidos\n    for (const registro of registros) {\n      if (registro.FECHA < fechaNum && registro.REMANENTES && registro.REMANENTES !== 0) {\n        return registro.FECHA;\n      }\n    }\n\n    return \"sin cierre de ciclo\";\n\n  } catch (error) {\n    throw new Error(`Error al procesar datos históricos: ${error.message}`);\n  }\n}\n\nconst fechaValida = obtenerFechaAnteriorConRemanentes(input);\n\nreturn [\n  {\n    json: {\n      fecha: fechaValida.toString()\n    }\n  }\n];\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        700,
+        720,
         -60
       ],
       "id": "bbd892c8-3e98-4f3b-9432-c785306a65b0",
@@ -92,7 +93,7 @@
     },
     {
       "parameters": {
-        "jsCode": "\nreturn {\"listHistorico\": $input.all()};\n"
+        "jsCode": "const input = $input.all();\nconst input2 = $input.first().json;\n\n// Verificar si el objeto está vacío\nconst isEmpty = Object.keys(input).length === 0 && input.constructor === Object;\nif (isEmpty) {\n  return [\n    {\n      listHistorico: null\n    }\n  ];\n} else {\n  // Retorna el json original si no está vacío\n  return [\n    {\n      listHistorico: input\n    }\n  ];\n}\n\n//return {\"listHistorico\": $input.all()};\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -184,6 +185,50 @@
       ],
       "id": "1e9ce3fe-7e3c-48a3-a101-985a724da8fa",
       "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "operation": "aggregate"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        700,
+        120
+      ],
+      "id": "46b628f4-1b43-4fab-9ea3-7a952b08d46d",
+      "name": "MongoDB1",
+      "credentials": {
+        "mongoDb": {
+          "id": "J6HuzpFN5ghJjIF7",
+          "name": "MongoDB account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "18261612-458c-403b-9b93-b36be7259bc5",
+              "name": "fecha",
+              "value": 20250214,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        920,
+        -60
+      ],
+      "id": "c604bcc1-f753-45f1-a09c-35f8859d3c5a",
+      "name": "Edit Fields1",
+      "disabled": true
     }
   ],
   "pinData": {},
@@ -223,7 +268,13 @@
     },
     "LogicaFechaHistorico": {
       "main": [
-        []
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Code": {
@@ -269,7 +320,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "c69cf268-9ee1-425b-a5be-e89250c9e73d",
+  "versionId": "67d39b34-ada0-40f9-9da1-d2bcbb42575a",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"

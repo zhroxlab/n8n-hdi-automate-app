@@ -3,37 +3,6 @@
   "nodes": [
     {
       "parameters": {
-        "mode": "raw",
-        "jsonOutput": "{\n  \"pathGestion\": \"./data/_gestion/inSara.xlsx\"\n}\n",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        120,
-        840
-      ],
-      "id": "e6853a1f-5e03-4b5f-ba6d-077b99d7e2f7",
-      "name": "SetPathManual",
-      "disabled": true,
-      "notes": "Se ingresa manualmente la ruta del archivo que se quiere leer desde disco."
-    },
-    {
-      "parameters": {
-        "jsCode": "\nreturn [{ pathGestion: $json[\"pathGestion\"] !== undefined ? $json[\"pathGestion\"] : $json[\"body\"][\"pathGestion\"] }];\n\n\n"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        300,
-        600
-      ],
-      "id": "5c79ba98-5d5a-4a22-bc9f-9eb30939a71b",
-      "name": "ValidateSourcePath",
-      "notes": "Valida cual de los dos orígenes que indican la ruta de archivo tienen un valor y lo envía al siguiente nodo."
-    },
-    {
-      "parameters": {
         "inputSource": "jsonExample",
         "jsonExample": "{\n  \"pathGestion\": \"./data/_gestion/inSara.xlsx\"\n}\n"
       },
@@ -41,11 +10,69 @@
       "typeVersion": 1.1,
       "position": [
         -100,
-        420
+        -80
       ],
       "id": "61f5fdde-f9e4-4be5-9fda-f1220da3712a",
       "name": "When Executed by Another Workflow",
       "notesInFlow": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        280
+      ],
+      "id": "5aeea184-4335-4624-9efd-0def2fe51615",
+      "name": "When clicking ‘Test workflow’",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const newJson = {};\n  \n  for (const key in item.json) {\n    // Elimina solo espacios al inicio y al final de la clave\n    const cleanKey = key.trim();\n    newJson[cleanKey] = item.json[key];\n  }\n\n  return {\n    json: newJson\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        940,
+        60
+      ],
+      "id": "12dd3d99-a01a-4466-a688-e3fd3b785d2e",
+      "name": "Trim(Campos)",
+      "notesInFlow": true,
+      "notes": "Elimina espacios en nombres de campo"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"pathGestion\": \n\"./data/_gestion/PlanillaGestion5Reglas.xlsx\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        120,
+        280
+      ],
+      "id": "7c67c57f-2992-4ee4-8268-b6fd845def56",
+      "name": "SetPathManual1",
+      "disabled": true,
+      "notes": "Se ingresa manualmente la ruta del archivo que se quiere leer desde disco."
+    },
+    {
+      "parameters": {
+        "jsCode": "\nreturn [{ pathGestion: $json[\"pathGestion\"] !== undefined ? $json[\"pathGestion\"] : $json[\"body\"][\"pathGestion\"] }];\n \n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        300,
+        60
+      ],
+      "id": "3c42db20-7a92-42e8-891b-6f843d78002d",
+      "name": "ValidateSourcePath1",
+      "notes": "Valida cual de los dos orígenes que indican la ruta de archivo tienen un valor y lo envía al siguiente nodo."
     },
     {
       "parameters": {
@@ -58,24 +85,25 @@
       "typeVersion": 1,
       "position": [
         320,
-        820
+        280
       ],
-      "id": "de5478e3-f215-475f-854e-340b898c9ed0",
-      "name": "Sticky Note"
+      "id": "425ec485-fb7d-4b16-ac02-126d5316be21",
+      "name": "Sticky Note1"
     },
     {
       "parameters": {
-        "respondWith": "allIncomingItems",
+        "respondWith": "json",
+        "responseBody": "{\n  \"output\": \"Carga de Planilla Gestión completa.\"\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        940,
-        600
+        1740,
+        60
       ],
-      "id": "59de6b0b-2a27-41ce-8d0e-cc8809337446",
-      "name": "Respond to Webhook1"
+      "id": "b3f6b8b0-6f5b-4f9a-aef3-b4b968dc24eb",
+      "name": "Respond to Webhook"
     },
     {
       "parameters": {
@@ -90,10 +118,10 @@
       "typeVersion": 2,
       "position": [
         -100,
-        640
+        100
       ],
-      "id": "7ab7c65d-d130-4440-88c8-b2768922d355",
-      "name": "Webhook1",
+      "id": "4de970ae-dd75-47da-a906-bfaade005bac",
+      "name": "Webhook",
       "webhookId": "8106f96b-6681-473f-8875-edd9751689d5"
     },
     {
@@ -105,23 +133,11 @@
       "typeVersion": 1,
       "position": [
         500,
-        600
+        60
       ],
-      "id": "24182cba-29cf-4465-9bc6-299fede032f7",
-      "name": "Read/Write Files from Disk1",
+      "id": "926ed2c5-0f58-42c6-86fd-86cd5788158a",
+      "name": "Read/Write Files from Disk",
       "alwaysOutputData": true
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
-      "position": [
-        -100,
-        840
-      ],
-      "id": "5aeea184-4335-4624-9efd-0def2fe51615",
-      "name": "When clicking ‘Test workflow’",
-      "disabled": true
     },
     {
       "parameters": {
@@ -132,63 +148,58 @@
       "typeVersion": 1,
       "position": [
         720,
-        600
+        60
       ],
-      "id": "8c0301b7-ee2b-4e49-9ccd-cdffd39ea65b",
-      "name": "Extract from File"
+      "id": "0f40b055-a77f-47c2-89b0-72e7c39d3ec6",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {
+        "command": "=node ./data/_scripts/code-data-gestion-to-db/code-data-gestion-to-db.js \"{{ $json.jsonArg }}\"\n"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1500,
+        60
+      ],
+      "id": "fe10d1c4-9222-4931-9762-cc15ea326f6d",
+      "name": "Execute Command"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtenemos todos los elementos de entrada con $input.all()\nconst inputItems = $input.all();\n\n// Mapeamos los elementos para devolver solo el contenido de 'json' con claves numeradas\nreturn inputItems.map((item, index) => {\n  const key = `json${index}`; // Generamos la clave como json0, json1, etc.\n  return {\n    [key]: Object.assign({}, item.json) // Usamos solo item.json, sin incluir pairedItem\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        60
+      ],
+      "id": "05f44a0d-3273-4ced-824a-cf2684be18af",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = {};\nitems.forEach((item, index) => {\n  const key = `json${index}`;\n  const innerKey = Object.keys(item.json)[0];\n  result[key] = item.json[innerKey];\n});\n\nconst jsonString = JSON.stringify(result).replace(/\"/g, '\\\\\"');\n\nreturn [\n  {\n    json: {\n      jsonArg: jsonString\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        60
+      ],
+      "id": "dece7be5-85af-4153-8295-5c43dcfa16a5",
+      "name": "Code1"
     }
   ],
   "pinData": {},
   "connections": {
-    "SetPathManual": {
-      "main": [
-        [
-          {
-            "node": "ValidateSourcePath",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "ValidateSourcePath": {
-      "main": [
-        [
-          {
-            "node": "Read/Write Files from Disk1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "When Executed by Another Workflow": {
       "main": [
         [
           {
-            "node": "ValidateSourcePath",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Webhook1": {
-      "main": [
-        [
-          {
-            "node": "ValidateSourcePath",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Read/Write Files from Disk1": {
-      "main": [
-        [
-          {
-            "node": "Extract from File",
+            "node": "ValidateSourcePath1",
             "type": "main",
             "index": 0
           }
@@ -199,18 +210,106 @@
       "main": [
         [
           {
-            "node": "SetPathManual",
+            "node": "SetPathManual1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Extract from File": {
+    "Trim(Campos)": {
       "main": [
         [
           {
-            "node": "Respond to Webhook1",
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SetPathManual1": {
+      "main": [
+        [
+          {
+            "node": "ValidateSourcePath1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ValidateSourcePath1": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "ValidateSourcePath1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "Trim(Campos)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Command": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
             "type": "main",
             "index": 0
           }
@@ -218,12 +317,13 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "7929ed24-ef1c-4ffc-b6c9-597ab3061afc",
+  "versionId": "1d532565-f264-4222-bf18-6aba2296b008",
   "meta": {
+    "templateCredsSetupCompleted": true,
     "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
   },
   "id": "oCF8eYfMwHY96LWk",

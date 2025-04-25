@@ -1,0 +1,115 @@
+{
+  "name": "app_hdi_GET_dataGestion",
+  "nodes": [
+    {
+      "parameters": {
+        "collection": "data_gestion",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        280,
+        0
+      ],
+      "id": "76718055-ad67-4ab4-aefe-77b6e4fe6104",
+      "name": "MongoDB",
+      "credentials": {
+        "mongoDb": {
+          "id": "J6HuzpFN5ghJjIF7",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        20,
+        -120
+      ],
+      "id": "a51a27a4-322d-4fad-aacd-8c87a6e36c2b",
+      "name": "When Executed by Another Workflow",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "path": "01e6ec94-185e-480d-9f09-514dda724681",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        20,
+        100
+      ],
+      "id": "822f73ae-b063-48f8-a3f0-a64e060ff8f6",
+      "name": "Webhook",
+      "webhookId": "01e6ec94-185e-480d-9f09-514dda724681"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        520,
+        0
+      ],
+      "id": "463f6d5a-2ac9-4c4b-bebe-11b1c3ef9a8e",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bf94218d-ab15-4ee3-b898-69fcae527371",
+  "meta": {
+    "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
+  },
+  "id": "8119kYchjILwqc1M",
+  "tags": []
+}

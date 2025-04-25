@@ -1,5 +1,5 @@
 {
-  "name": "app_hdi_agTira",
+  "name": "app_hdi_provTotalAtm",
   "nodes": [
     {
       "parameters": {
@@ -14,7 +14,7 @@
             {
               "id": "e2df52f6-7346-4592-b2ce-e5637da89be3",
               "name": "idAtm",
-              "value": 6116,
+              "value": 9,
               "type": "number"
             }
           ]
@@ -24,10 +24,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -260,
-        -180
+        600,
+        -160
       ],
-      "id": "5cb054bc-3c28-4d21-aafa-307764c27037",
+      "id": "e2a252ec-e52d-4d83-a612-fed0db02b866",
       "name": "Edit Fields"
     },
     {
@@ -38,10 +38,10 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        -620,
-        20
+        300,
+        40
       ],
-      "id": "26e94793-6387-4123-b7d2-1e3a6e0fe740",
+      "id": "e535ebd2-dac8-441b-95c1-c82671e4eae6",
       "name": "When Executed by Another Workflow",
       "notesInFlow": true
     },
@@ -49,28 +49,18 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "xIMlEdnRvJ5OxDFV",
+          "value": "TRrefeWK7fSSyhpw",
           "mode": "list",
-          "cachedResultName": "app_hdi_agTira"
+          "cachedResultName": "app_hdi_provTotalAtm"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
-            "idAtm": "={{ $json.idAtm }}",
-            "marcaAtm": "={{ $json.marcaAtm }}"
+            "marcaAtm": "={{ $json.marcaAtm }}",
+            "idAtm": "={{ $json.idAtm }}"
           },
           "matchingColumns": [],
           "schema": [
-            {
-              "id": "idAtm",
-              "displayName": "idAtm",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "number",
-              "removed": false
-            },
             {
               "id": "marcaAtm",
               "displayName": "marcaAtm",
@@ -78,8 +68,16 @@
               "defaultMatch": false,
               "display": true,
               "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
+              "type": "string"
+            },
+            {
+              "id": "idAtm",
+              "displayName": "idAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
             }
           ],
           "attemptToConvertTypes": false,
@@ -90,10 +88,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        560,
-        -180
+        1040,
+        -160
       ],
-      "id": "b4f06042-c9df-4cc5-926a-35171697772f",
+      "id": "a434e714-525d-4e46-a1a8-464b6ee61b54",
       "name": "Execute Workflow"
     },
     {
@@ -105,10 +103,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.8,
       "position": [
-        -280,
-        200
+        640,
+        220
       ],
-      "id": "a7b3a4d0-8991-44ae-b61d-8ca01622e22f",
+      "id": "4894e032-f3a5-4c65-a22a-29bcfdb8e611",
       "name": "AgentTira",
       "alwaysOutputData": false,
       "executeOnce": false,
@@ -127,10 +125,10 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        -240,
-        360
+        680,
+        380
       ],
-      "id": "a6df84d5-a658-47e4-a374-0484f9b65c78",
+      "id": "8bf3c14b-35ce-4e8c-bb3e-ca7a728eeb44",
       "name": "ModelTira",
       "credentials": {
         "openAiApi": {
@@ -146,10 +144,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        120,
-        200
+        1040,
+        220
       ],
-      "id": "4c8b8847-9fe0-4fca-84cb-21f46ccf57d1",
+      "id": "7b28ac0c-e56a-485b-801c-661a68acc2d6",
       "name": "stringToJson",
       "disabled": true
     },
@@ -158,15 +156,15 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -620,
-        -180
+        300,
+        -160
       ],
-      "id": "366598bb-ce01-446a-b4ab-207e44cbcd30",
+      "id": "6752b847-fead-44f7-9391-efe74a48155b",
       "name": "When clicking ‘Test workflow’"
     },
     {
       "parameters": {
-        "content": "## Ejemplo json _agTira \n### Entrada\n```json\n  {\n    \"marcaAtm\": \"ncr\",\n    \"idAtm\": 8141\n  }\n```\n\n### Salida:\n```json\n  {\n    \"TYPE1\": 03361,\n    \"TYPE2\": 00000,\n    \"TYPE3\": 01924,\n    \"TYPE4\": 01725\n  }\n```",
+        "content": "## Ejemplo json _provTotalAtm\n### Entrada\n```json\n  {\n    \"marcaAtm\": \"ncr\",\n    \"idAtm\": 8141\n  }\n```\n\n### Salida:\n```json\n  {\n    \"TYPE1\": 03361,\n    \"TYPE2\": 00000,\n    \"TYPE3\": 01924,\n    \"TYPE4\": 01725\n  }\n```",
         "height": 440,
         "width": 380,
         "color": 7
@@ -174,25 +172,38 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -1060,
-        -200
+        -140,
+        -180
       ],
-      "id": "6a860a1e-554c-4ea9-8770-378488e02ad1",
+      "id": "834764a5-a334-4bb9-86a8-709d143ea3cc",
       "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\n// Si la entrada es un objeto vacío, retornar nulls\nconst isEmpty = Object.keys(input).length === 0 && input.constructor === Object;\nif (isEmpty) {\n  return [{\n    json: {\n      TYPE1: null,\n      TYPE2: null,\n      TYPE3: null,\n      TYPE4: null\n    }\n  }];\n}\n\nconst tira = input.tira; // array de líneas de la tira\n\nconst joined = tira.join(\" \"); // Unimos todo para facilitar la búsqueda\n\n// Buscar la sección de CASH ADDED (CASHDISPENSER)\nconst patternStart = /CASH ADDED \\(CASHDISPENSER\\)/i;\n\nif (!patternStart.test(joined)) {\n  // No se encontró la sección, retornar ceros en string\n  return [{\n    json: { TYPE1: \"00000\", TYPE2: \"00000\", TYPE3: \"00000\", TYPE4: \"00000\" }\n  }];\n}\n\n// Cortamos desde esa sección\nconst cut = joined.slice(joined.search(patternStart));\n\n// Extraemos los TYPEs\nconst regexTypes = /TYPE\\s*1\\s*=\\s*(\\d{5})\\s*TYPE\\s*2\\s*=\\s*(\\d{5}).*?TYPE\\s*3\\s*=\\s*(\\d{5})\\s*TYPE\\s*4\\s*=\\s*(\\d{5})/i;\nconst match = cut.match(regexTypes);\n\nif (match) {\n  return [{\n    json: {\n      TYPE1: Number(match[1]),\n      TYPE2: Number(match[2]),\n      TYPE3: Number(match[3]),\n      TYPE4: Number(match[4])\n    }\n  }];\n} else {\n  return [{\n    json: { TYPE1: 0, TYPE2: 0, TYPE3: 0, TYPE4: 0 }\n  }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1060,
+        40
+      ],
+      "id": "70d3781a-bf32-4276-bc75-f379fd62d64b",
+      "name": "Code"
     },
     {
       "parameters": {
         "collection": "=tira_{{ $json.marcaAtm }}",
         "options": {},
-        "query": "={\"numeroCajero\": \"{{ $json.idAtm }}\"} "
+        "query": "={\"numeroCajero\": \"{{ $json.idAtm.toString() }}\"} "
       },
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.1,
       "position": [
-        40,
-        20
+        840,
+        40
       ],
-      "id": "bad73bc3-c5bd-48bd-bcab-91297ae9fc71",
+      "id": "58c8b770-772b-430c-b3cb-264cb51d4b39",
       "name": "MongoDB",
       "alwaysOutputData": true,
       "credentials": {
@@ -200,47 +211,20 @@
           "id": "J6HuzpFN5ghJjIF7",
           "name": "MongoDB account"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "parameters": {
-        "jsCode": "const input = $input.first().json;\n\n// Si ya vienen todos los TYPE como null, retornamos tal cual\nif (\n  input.TYPE1 === null &&\n  input.TYPE2 === null &&\n  input.TYPE3 === null &&\n  input.TYPE4 === null\n) {\n  return [ { json: input } ];\n}\n\nconst tira = input.tira; // array de líneas de la tira\n\nconst joined = tira.join(\" \"); // Unimos todo en una sola línea para facilitar búsqueda\n\n// Buscar el patrón desde la sección de CASH COUNTS CLEARED y CASH DISPENSED\nconst patternStart = /CASH COUNTS CLEARED \\(CASHDISPENSER\\)\\s+CASH DISPENSED/i;\n\nif (!patternStart.test(joined)) {\n  // No se encontró la sección, retornar ceros\n  return [{\n    json: { TYPE1: 0, TYPE2: 0, TYPE3: 0, TYPE4: 0 }\n  }];\n}\n\n// Cortamos desde la parte donde empieza la sección que nos interesa\nconst cut = joined.slice(joined.search(patternStart));\n\n// Ahora buscamos los TYPEs\nconst regexTypes = /TYPE\\s*1\\s*=\\s*(\\d{5})\\s*TYPE\\s*2\\s*=\\s*(\\d{5}).*?TYPE\\s*3\\s*=\\s*(\\d{5})\\s*TYPE\\s*4\\s*=\\s*(\\d{5})/i;\nconst match = cut.match(regexTypes);\n\nif (match) {\n  return [{\n    json: {\n      TYPE1: Number(match[1]),\n      TYPE2: Number(match[2]),\n      TYPE3: Number(match[3]),\n      TYPE4: Number(match[4])\n    }\n  }];\n} else {\n  return [{\n    json: { TYPE1: 0, TYPE2: 0, TYPE3: 0, TYPE4: 0 }\n  }];\n}"
+        "jsCode": "// Obtener todos los elementos de entrada\nconst items = $input.all();\n\n// Procesar cada item\nconst output = items.map(item => {\n  const { marcaAtm, idAtm } = item.json;\n\n  // Convertir idAtm a string\n  let idAtmStr = idAtm.toString();\n\n  // Si tiene solo 3 dígitos, agregar un cero al inicio\n  if (idAtmStr.length === 3) {\n    idAtmStr = '0' + idAtmStr;\n  }\n\n  return {\n    json: {\n      marcaAtm,\n      idAtm: idAtmStr,\n    }\n  };\n});\n\nreturn output;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        560,
-        20
+        600,
+        40
       ],
-      "id": "6a34aa05-94cf-4c43-adcd-cf31be5be10e",
-      "name": "Code"
-    },
-    {
-      "parameters": {
-        "jsCode": "// Obtener todos los elementos de entrada\nconst items = $input.all();\n\n// Procesar cada item\nconst output = items.map(item => {\n  const { marcaAtm, idAtm } = item.json;\n\n  // Convertir idAtm a string\n  let idAtmStr = idAtm.toString();\n\n  // Si tiene solo 3 dígitos, agregar un cero al inicio\n  if (idAtmStr.length === 3) {\n    idAtmStr = '0' + idAtmStr;\n  }\n  // Si tiene solo 2 dígitos, agregar dos cero al inicio\n  else if (idAtmStr.length === 2) {\n    idAtmStr = '00' + idAtmStr;\n  }\n  // Si tiene solo 1 dígitos, agregar tres cero al inicio\n  else if (idAtmStr.length === 1) {\n    idAtmStr = '000' + idAtmStr;\n  }\n\n  return {\n    json: {\n      marcaAtm,\n      idAtm: idAtmStr,\n    }\n  };\n});\n\nreturn output;"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -260,
-        20
-      ],
-      "id": "9b1f7004-5562-4f40-9e8d-07d7e52727aa",
+      "id": "25fcb6e2-ed75-4c07-8198-e4ba78e0369e",
       "name": "Code1"
-    },
-    {
-      "parameters": {
-        "jsCode": "const input = $input.first().json;\n\n// Verificar si el objeto está vacío\nconst isEmpty = Object.keys(input).length === 0 && input.constructor === Object;\n\nif (isEmpty) {\n  return [\n    {\n      json: {\n        TYPE1: null,\n        TYPE2: null,\n        TYPE3: null,\n        TYPE4: null\n      }\n    }\n  ];\n} else {\n  // Retorna el json original si no está vacío\n  return [\n    {\n      json: input\n    }\n  ];\n}"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        300,
-        20
-      ],
-      "id": "a774613d-fa03-4add-95f1-4160faa8817d",
-      "name": "Code2"
     }
   ],
   "pinData": {},
@@ -267,23 +251,23 @@
         ]
       ]
     },
-    "ModelTira": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AgentTira",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "AgentTira": {
       "main": [
         [
           {
             "node": "stringToJson",
             "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ModelTira": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AgentTira",
+            "type": "ai_languageModel",
             "index": 0
           }
         ]
@@ -304,7 +288,7 @@
       "main": [
         [
           {
-            "node": "Code2",
+            "node": "Code",
             "type": "main",
             "index": 0
           }
@@ -321,27 +305,16 @@
           }
         ]
       ]
-    },
-    "Code2": {
-      "main": [
-        [
-          {
-            "node": "Code",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "ecec70ed-d54e-4bad-8e70-cf66b60d5d23",
+  "versionId": "016dabf6-024d-48a3-bc89-14b508b21cb4",
   "meta": {
     "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
   },
-  "id": "xIMlEdnRvJ5OxDFV",
+  "id": "TRrefeWK7fSSyhpw",
   "tags": []
 }

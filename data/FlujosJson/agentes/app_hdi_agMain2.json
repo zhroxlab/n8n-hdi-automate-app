@@ -1,0 +1,827 @@
+{
+  "name": "app_hdi_agMain2",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        100,
+        -440
+      ],
+      "id": "87be4a39-db4a-473e-887e-ba9c993facba",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "\n  {\n    \"_id\": \"67fefffdf44f910f4c42bc44\",\n    \"json0\": {\n      \"CÓDIGO FONDO\": 73,\n      \"CIUDAD\": \"PEREIRA\",\n      \"CÓDIGO\": 8831,\n      \"NOMBRE CAJERO\": \"ATM SUPERINTER SANTA ISABEL\",\n      \"FECHA\": 20250317,\n      \"CONTADORES\": 338120000,\n      \"CONTABILIDAD\": -58570000,\n      \"REMANENTES\": 8870000,\n      \"PROVISIONES\": 405000000,\n      \"DIFERENCIA\": -560000,\n      \"ESTADO\": \"SOBRANTE\",\n      \"TIPO DIFERENCIA\": \"REVISAR TIRA\",\n      \"SOBRANTE\": 560000,\n      \"RESPONSABLE\": \"SARA\",\n      \"TDV\": \"TRANSBANK\"\n    }\n  }\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        360,
+        -440
+      ],
+      "id": "5f8a78d2-32fa-4d66-a366-609d7b82ea55",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=### JSON de entrada:\n\n```json\n{{ JSON.stringify($json.dataAtm) }}\n```\n\n---\n\n### 🏦 Proceso de Cuadre ATM\n\nEjecuta las siguientes herramientas en orden y guarda cada resultado con el nombre indicado.\n\n---\n\n### 1. Ejecuta `tool_cp_data` con:\n```json\n{\n  \"codigo\": {{ $json.dataAtm[\"CÓDIGO\"] }}\n}\n```\nGuarda el resultado como `cpData`\n\n---\n\n### 2. Ejecuta `tool_agente_tira_atm` con:\n```json\n{\n  \"marcaAtm\": \"ncr\",\n  \"idAtm\": {{ $json.dataAtm[\"CÓDIGO\"] }}\n}\n```\nGuarda el resultado como `tiraData`\n\n---\n\n### 3. Ejecuta `tool_atm_calculadora` con:\n```json\n{\n  \"certificadoTDV\": {{ $json.dataAtm[\"REMANENTES\"] }},\n  \"marca\": cpData.marca.toUpperCase(),\n  \"cupo\": cpData.cupo,\n  \"dispensado\": {\n    \"TYPE1\": tiraData.TYPE1,\n    \"TYPE2\": tiraData.TYPE2,\n    \"TYPE3\": tiraData.TYPE3,\n    \"TYPE4\": tiraData.TYPE4\n  },\n  \"billValues\": {\n    \"TYPE1\": cpData.gav1,\n    \"TYPE2\": cpData.gav2,\n    \"TYPE3\": cpData.gav3,\n    \"TYPE4\": cpData.gav4\n  }\n}\n```\nGuarda el resultado como `calculadoraAtm`\n\n---\n\n### 4. Ejecuta `tool_historico_date` con:\n```json\n{\n  \"idAtm\": {{ $json.dataAtm[\"CÓDIGO\"] }},\n  \"fechaAtm\": {{ $json.dataAtm[\"FECHA\"] }}\n}\n```\nGuarda el resultado como `historicoDate`\n\n---\n\n### 5. Ejecuta `tool_prov_total_calculadora` con:\n```json\n{\n  \"marca\": \"cpData.marca.toUpperCase()\",\n  \"cupoMillones\": cpData.cupo\n}\n```\nGuarda el resultado como `provTotalCalculadora`\n\n---\n\n### 6. Ejecuta `tool_prov_total_atm` con:\n```json\n{\n  \"marcaAtm\": \"ncr\",\n  \"idAtm\": {{ $json.dataAtm[\"CÓDIGO\"] }}\n}\n```\nGuarda el resultado como `provTotalAtm`\n\n---\n\n### 7. Ejecuta `tool_rules` con:\n```json\n{\n  \"json\": {\n    \"itemSobrante\": {{ $json.dataAtm[\"SOBRANTE\"] }},\n    \"itemFaltante\": {{ $json.dataAtm[\"FALTANTE\"] }},\n    \"itemRemanentes\": {{ $json.dataAtm[\"REMANENTES\"] }},\n    \"itemDiferencia\": {{ $json.dataAtm[\"DIFERENCIA\"] }},\n    \"itemProvisiones\": {{ $json.dataAtm[\"PROVISIONES\"] }},\n    \"valCalculadoraAtm\": calculadoraAtm.diferencia,\n    \"provTira\": provTotalAtm,\n    \"provCal\": provTotalCalculadora.prov_total\n  }\n}\n```\nGuarda el resultado como `toolRulesResult`\n\n---\n\n### ✅ Tabla de reglas y campos a modificar con valores segun el resultado de `toolRulesResult.result`\n\n- **R1**:\n  - `JUSTIFICACIÓN`: \"FÍSICO\"\n  - `RATIFICAR Y GRABAR DIFERENCIA`: \"SÍ\"\n  - `NUEVO ESTADO`: \"CONTABILIZACIÓN SOBRANTE FÍSICO\"\n  - `OBSERVACIÓN`: \"CALCULADORA ARROJA EL SOBRANTE FÍSICO\"\n  - `FECHA INICIO CICLO`: historicoDate.fecha\n  - `FECHA FINAL CICLO`: {{ $json.dataAtm[\"FECHA\"] }}\n\n- **R2**: Igual a R1, pero:\n  - `NUEVO ESTADO`: \"FALTANTE EN ARQUEO\"\n  - `OBSERVACIÓN`: \"CALCULADORA ARROJA EL FALTANTE FÍSICO\"\n\n- **R3**:\n  - `JUSTIFICACIÓN`: \"CONTABLE\"\n  - `RATIFICAR Y GRABAR DIFERENCIA`: \"NO\"\n  - `NUEVO ESTADO`: \"MALAS RUTINAS\"\n  - `OBSERVACIÓN`: \"POR MALA RUTINA - ADICIÓN ERRADA\"\n\n- **R41 / R42**:\n  - `JUSTIFICACIÓN`: \"CONTABLE\"\n  - `RATIFICAR Y GRABAR DIFERENCIA`: \"NO\"\n  - `NUEVO ESTADO`: \"ERROR EN TRANSMISIÓN DE CONTADORES\"\n  - `OBSERVACIÓN`: {{ $json.dataAtm[\"FECHA\"] }}\n\n- **R51**:\n  - `JUSTIFICACIÓN`: \"CONTABLE\"\n  - `RATIFICAR Y GRABAR DIFERENCIA`: \"NO\"\n  - `NUEVO ESTADO`: \"CONTABILIZACIÓN SOBRANTE CONTABLE\"\n  - `OBSERVACIÓN`: {{ $json.dataAtm[\"FECHA\"] }}\n\n- **R52**: Igual a R51, pero:\n  - `RATIFICAR Y GRABAR DIFERENCIA`: \"SI\"\n\n---\n\n### 🔝 Formato de salida obligatorio\n\nRetorna el JSON original:\n```json\n{\"CÓDIGO FONDO\":73,\"CIUDAD\":\"PEREIRA\",\"CÓDIGO\":8831,\"NOMBRE CAJERO\":\"ATM SUPERINTER SANTA ISABEL\",\"FECHA\":20250317,\"CONTADORES\":338120000,\"CONTABILIDAD\":-58570000,\"REMANENTES\":8870000,\"PROVISIONES\":405000000,\"DIFERENCIA\":-560000,\"ESTADO\":\"SOBRANTE\",\"TIPO DIFERENCIA\":\"REVISAR TIRA\",\"SOBRANTE\":560000,\"RESPONSABLE\":\"SARA\",\"TDV\":\"TRANSBANK\"}\n```\n\nCon los cambios según regla (si aplica) y un campo:\n```json\n\"EXPLICACIÓN\": {\n  \"regla_aplicada\": \"R#\" o \"ninguna\",\n  \"campos_modificados\": [\"...\"],\n  \"fuentes_usadas\": {\n    \"calculadoraAtm\": { ... },\n    \"provTotalAtm\": { ... },\n    \"provTotalCalculadora\": { ... },\n    \"historicoDate\": historicoDate.fecha\n  },\n  \"motivo\": \"Justificación basada en los valores procesados\"\n}\n```\n\n",
+        "options": {
+          "systemMessage": "Eres un agente especializado en procesos bancarios de cuadre de cajeros automáticos (ATM). Tu tarea es ejecutar herramientas (tools) en orden y procesar sus resultados para determinar si se debe modificar el JSON de un ATM según reglas predefinidas.\n\nTu comportamiento debe seguir estas reglas estrictas:\n\n1. Ejecuta cada tool en el orden indicado y espera su resultado antes de continuar.\n2. Evalúa el resultado de `tool_rules` usando los datos procesados.\n3. Si `tool_rules` responde con \"result\": true y \"ruleMatched\": \"R#\", modifica únicamente los campos que correspondan a esa regla según la tabla de reglas.\n4. Si no se aplica ninguna regla, devuelve el JSON de entrada sin cambios estructurales.\n5. En todos los casos, agrega el campo \"EXPLICACIÓN\" con la siguiente estructura:\n\n```json\n\"EXPLICACIÓN\": {\n  \"regla_aplicada\": \"R#\",         // o \"ninguna\"\n  \"campos_modificados\": [ ... ],  // array de campos modificados\n  \"fuentes_usadas\": {\n    \"calculadoraAtm\": { ... },\n    \"provTotalAtm\": { ... },\n    \"provTotalCalculadora\": { ... },\n    \"historicoDate\": \"...\"\n  },\n  \"motivo\": \"Justificación clara basada en los datos\"\n}\n```\n\n6. La salida debe ser siempre un único JSON válido. No incluyas ningún texto adicional fuera del JSON.\n7. No modifiques ningún campo que no esté expresamente indicado por la regla activa.\n8. Todos los valores numéricos deben conservar su tipo original (no convertir a texto).\n\n---\n\n",
+          "maxIterations": 20
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        660,
+        -220
+      ],
+      "id": "d1cb5e64-01bb-441b-9d19-56508adc250c",
+      "name": "AI Agent",
+      "executeOnce": false,
+      "notesInFlow": false,
+      "alwaysOutputData": false,
+      "retryOnFail": false,
+      "maxTries": 2,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        640,
+        60
+      ],
+      "id": "b09fc256-6e29-4427-a3b7-fc574002c6e6",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "bDrVHByV826BPw8y",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        820,
+        80
+      ],
+      "id": "192c1157-8532-4ee6-91bc-62b2dcb19225",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        100,
+        -220
+      ],
+      "id": "31722cb2-35d7-4ece-ad47-4638435a8669",
+      "name": "When Executed by Another Workflow",
+      "notesInFlow": true,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "81a2d016-ebcc-48a5-91f1-751ef80fb2f7",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        100,
+        -20
+      ],
+      "id": "224576c9-a3ea-4af3-9448-18cbf8c30108",
+      "name": "Webhook1",
+      "webhookId": "81a2d016-ebcc-48a5-91f1-751ef80fb2f7",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1260,
+        -240
+      ],
+      "id": "9839f1d6-2afb-4ebe-8235-6086b3dfec1d",
+      "name": "Respond to Webhook",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "dr8bcnG2aTPdO9p7",
+          "mode": "list",
+          "cachedResultName": "app_hdi_agMain"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        660,
+        -440
+      ],
+      "id": "75a81fd1-d1c0-4731-8623-c8f8f8fc7e35",
+      "name": "Execute Workflow",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "### Ejemplo json _agMain\n### Entrada\n```json\n  {\n    \"dataAtm\": {\n      \"CÓDIGO FONDO\": 1,\n      \"CIUDAD\": \"MEDELLIN\",\n      \"CÓDIGO\": 8141,\n      \"NOMBRE CAJERO\": \"ATM PUERTA DEL NORTE 4\",\n      \"FECHA\": 20250217,\n      \" CONTADORES \": 238540000,\n      \" CONTABILIDAD \": 35820000,\n      \" REMANENTES \": 97830000,\n      \" PROVISIONES \": 296000000,\n      \" DIFERENCIA \": -4550000,\n      \" ESTADO \": \"SOBRANTE\",\n      \" TIPO DIFERENCIA \": \"REVISAR TIRA\",\n      \" SOBRANTE \": 4550000,\n      \"RESPONSABLE\": \"SARA\",\n      \"TDV\": \"TRANSBANK\"\n    }\n  }\n```\n\n### Salida:\n```json\n\n\n```",
+        "height": 680,
+        "width": 420,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2000,
+        -300
+      ],
+      "id": "e38ac545-2596-4a26-8c94-56f6990c243c",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "name": "tool_historico_date",
+        "description": "Dado un id de cajero y una fecha específica, consulta el histórico y devuelve la fecha válida de corte anterior disponible. Usa MongoDB y lógica interna para determinarla.\n",
+        "workflowId": {
+          "__rl": true,
+          "value": "NCkJEUXLgsZlgKLO",
+          "mode": "list",
+          "cachedResultName": "app_hdi_historicoDate"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "idAtm": "={{ $fromAI('idAtm', ``, 'number') }}",
+            "fechaAtm": "={{ $fromAI('fechaAtm', ``, 'number') }}"
+          },
+          "matchingColumns": [
+            "dataAtm"
+          ],
+          "schema": [
+            {
+              "id": "idAtm",
+              "displayName": "idAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "fechaAtm",
+              "displayName": "fechaAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.1,
+      "position": [
+        1280,
+        80
+      ],
+      "id": "8262621d-ad89-4cfb-8eef-20198f3bfbe0",
+      "name": "tool_historico_date"
+    },
+    {
+      "parameters": {
+        "name": "tool_agente_tira_atm",
+        "description": "Dado un id de cajero y la marca del ATM, consulta la tira usando un agente de IA especializado para extraer el número de billetes dispensado del ATM. Devuelve un objeto con los valores por tipo (TYPE1, TYPE2, etc.).",
+        "workflowId": {
+          "__rl": true,
+          "value": "xIMlEdnRvJ5OxDFV",
+          "mode": "list",
+          "cachedResultName": "app_hdi_agTira"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "idAtm": "={{ $fromAI('idAtm', ``, 'number') }}",
+            "marcaAtm": "={{ $fromAI('marcaAtm', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "marcaAtm",
+              "displayName": "marcaAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "idAtm",
+              "displayName": "idAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.1,
+      "position": [
+        1600,
+        80
+      ],
+      "id": "4c7cfbf7-5d91-4def-bf11-509b2a7aec65",
+      "name": "tool_agente_tira_atm"
+    },
+    {
+      "parameters": {
+        "jsCode": "const webhookData = $json.body || {};  // Datos del Webhook\nconst setData = $json || {};           // Datos del nodo Set\n\n// Detectar la propiedad tipo \"json0\", \"json1\", etc.\nconst dynamicKeyWebhook = Object.keys(webhookData).find(k => /^json\\d+$/.test(k));\nconst dynamicKeySet = Object.keys(setData).find(k => /^json\\d+$/.test(k));\n\n// Seleccionar los datos válidos\nconst dataAtm = \n    (dynamicKeyWebhook && webhookData[dynamicKeyWebhook]) || \n    (dynamicKeySet && setData[dynamicKeySet]) || \n    null;\n\n// Resultado final\nconst finalData = { dataAtm };\n\nreturn [{ json: finalData }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -220
+      ],
+      "id": "b301222a-2417-4c7d-b2d4-9466a30eb648",
+      "name": "ValidateSourcePath",
+      "notes": "Valida cual de los dos orígenes que indican la ruta de archivo tienen un valor y lo envía al siguiente nodo."
+    },
+    {
+      "parameters": {
+        "content": "\n\n\n\n\n\n\n\n\n\n\n\n\n## Reglas para usar las tools:\n- **tool_cp_data** -> necesita el json concatenado del atm.\n- **tool_agente_tira_atm** -> necesita ejecutar a tool_cp_data para tomar el valor del campo marca.\n- **tool_historico_date** -> necesita el json concatenado del atm.\n- **tool_atm_calculadora** -> necesita el json del cajero concatenado, ejecutar tool_agente_tira_atm y ejecutar tool_cp_data\n\n",
+        "height": 320,
+        "width": 1160
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        800,
+        40
+      ],
+      "id": "9c5b046f-dcd7-4a59-96f3-b64d586ac7af",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "name": "tool_prov_total_atm",
+        "workflowId": {
+          "__rl": true,
+          "value": "TRrefeWK7fSSyhpw",
+          "mode": "list",
+          "cachedResultName": "app_hdi_provTotalAtm"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "idAtm": "={{ $fromAI('idAtm', ``, 'number') }}",
+            "marcaAtm": "={{ $fromAI('marcaAtm', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "marcaAtm",
+              "displayName": "marcaAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "idAtm",
+              "displayName": "idAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.1,
+      "position": [
+        940,
+        80
+      ],
+      "id": "043f0b32-5cbc-4310-a0d3-6419087eade1",
+      "name": "tool_prov_total_atm"
+    },
+    {
+      "parameters": {
+        "name": "tool_cp_data",
+        "workflowId": {
+          "__rl": true,
+          "value": "7J70pwvrBry0ca3F",
+          "mode": "list",
+          "cachedResultName": "app_hdi_cpData"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "codigo": "={{ $fromAI('codigo', ``, 'number') }}"
+          },
+          "matchingColumns": [
+            "codigo"
+          ],
+          "schema": [
+            {
+              "id": "codigo",
+              "displayName": "codigo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.1,
+      "position": [
+        1740,
+        80
+      ],
+      "id": "67a27f50-2907-448e-b648-c7672697d8ff",
+      "name": "tool_cp_data"
+    },
+    {
+      "parameters": {
+        "name": "tool_prov_total_calculadora",
+        "description": "Esta herramienta recibe un objeto JSON que contiene:\n- **marca** (texto), por ejemplo NCR\n- **cupo** (mumero), por ejemplo 111000000\n\nLa herramienta usa estos datos para hacer un cálculo interno relacionado con el ATM y devuelve un objeto JSON con el resultado final (por ejemplo, un valor numérico o un detalle adicional).\n",
+        "workflowId": {
+          "__rl": true,
+          "value": "cqDm1tlBZaINCBQZ",
+          "mode": "list",
+          "cachedResultName": "app_hdi_provTotalCalculadora"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "marca": "={{ $fromAI('marca', ``, 'string') }}",
+            "cupo": "={{ $fromAI('cupo', ``, 'number') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "marca",
+              "displayName": "marca",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "cupo",
+              "displayName": "cupo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.1,
+      "position": [
+        1100,
+        80
+      ],
+      "id": "108b25c9-b656-4aba-add7-7a62cfd72875",
+      "name": "tool_prov_total_calculadora"
+    },
+    {
+      "parameters": {
+        "name": "tool_atm_calculadora",
+        "description": "=Esta herramienta recibe un objeto JSON que contiene:\n- **certificadoTDV** (número, por ejemplo, el remanente en ATM)\n- **marca** (texto, puede ser la marca de la tarjeta)\n- **cupo** (número con el límite disponible)\n- **dispensado** (objeto con las propiedades TYPE1, TYPE2, TYPE3, TYPE4, cada una con un valor numérico que indica la cantidad de billetes dispensados)\n- **billValues** (objeto con las propiedades TYPE1, TYPE2, TYPE3, TYPE4, cada una con el valor monetario del billete en esa gaveta)\n\nLa herramienta usa estos datos para hacer un cálculo interno relacionado con el ATM y devuelve un objeto JSON con el resultado final (por ejemplo, un valor numérico o un detalle adicional).\n",
+        "workflowId": {
+          "__rl": true,
+          "value": "olaQbIhYtGacj1jb",
+          "mode": "list",
+          "cachedResultName": "app-hdi-calculadoraAtmsT"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "certificadoTDV": "={{ $fromAI('certificadoTDV', ``, 'number') }}",
+            "cupo": "={{ $fromAI('cupo', ``, 'number') }}",
+            "billValues": "={{ $fromAI('billValues', ``, 'json') }}",
+            "dispensado": "={{ $fromAI('dispensado', ``, 'json') }}",
+            "marca": "={{ $fromAI('marca', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "certificadoTDV",
+              "displayName": "certificadoTDV",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "marca",
+              "displayName": "marca",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "cupo",
+              "displayName": "cupo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "dispensado",
+              "displayName": "dispensado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            },
+            {
+              "id": "billValues",
+              "displayName": "billValues",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.1,
+      "position": [
+        1440,
+        80
+      ],
+      "id": "dfe266f8-f27e-4ded-bc70-a7a12216882a",
+      "name": "tool_atm_calculadora",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "name": "tool_rules",
+        "description": "Esta herramienta valida una lista de objetos JSON según reglas (R1, R2, R3) y devuelve true si la regla se cumple, false si no, \"error: json_type_rule\" si el JSON es inválido, o \"no_rules\" si la regla no existe.\n\nFormatos de entrada:\n\n1. JSON básico:\n{\n  \"json\": {\n      \"itemSobranteFaltante\": <número>,\n      \"valCalculadoraAtm\": <número>,\n       \"typeRule\": \"R1\" | \"R2\" | \"R3\"\n   }\n}\n\n2. JSON con objetos provTira y provCal (para R3):\n\n{\n  \"json\": {\n      \"itemSobranteFaltante\": <número>,\n      \"valCalculadoraAtm\": <número>,\n      \"typeRule\": \"R3\",\n      \"provTira\": { \"TYPE1\": <número>, \"TYPE2\": <número>, \"TYPE3\": <número>, \"TYPE4\": <número> },\n       \"provCal\": { \"TYPE1\": <número>, \"TYPE2\": <número>, \"TYPE3\": <número>, \"TYPE4\": <número> }\n   }\n}\n\nFormato de salida:\n\n[{ \"result\": true | false | \"error: json_type_rule\" | \"no_rules\" }]\n",
+        "workflowId": {
+          "__rl": true,
+          "value": "YiRNNv2xQlaA5J0i",
+          "mode": "list",
+          "cachedResultName": "app_hdi_rules2"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "json": "={{ $fromAI('json', ``, 'json') }}"
+          },
+          "matchingColumns": [
+            "json"
+          ],
+          "schema": [
+            {
+              "id": "json",
+              "displayName": "json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.1,
+      "position": [
+        1860,
+        80
+      ],
+      "id": "bcf26c24-4850-4f1c-a242-46869ac0f415",
+      "name": "tool_rules"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nreturn items.map(item => {\n  const key = Object.keys(item.json).find(k => k !== '_id');\n  return {\n    json: {\n      dataAtm: item.json[key]\n    }\n  };\n});\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        -220
+      ],
+      "id": "8f437b99-2ebc-4578-9833-c428bbfb2753",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Entrada: La salida del Agente de IA\nconst rawOutput = $input.first().json.output; // Accede al campo \"output\"\n\n// Extraer el contenido JSON eliminando el Markdown (```json y ```)\nconst jsonString = rawOutput\n  .replace(\"```json\", \"\") // Elimina el inicio del bloque Markdown\n  .replace(\"```\", \"\")     // Elimina el final del bloque Markdown\n  .trim();                // Elimina espacios en blanco adicionales\n\n// Parsear la cadena JSON a un objeto\nconst parsedJson = JSON.parse(jsonString);\n\n// Salida: Devolver el JSON limpio\nreturn [{\n  json: parsedJson\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1060,
+        -240
+      ],
+      "id": "57032ba3-ff97-486f-955a-b8d0dd7453f7",
+      "name": "Code",
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "ValidateSourcePath",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "ValidateSourcePath",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "ValidateSourcePath",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tool_historico_date": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tool_agente_tira_atm": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ValidateSourcePath": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tool_prov_total_atm": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tool_cp_data": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tool_prov_total_calculadora": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tool_atm_calculadora": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tool_rules": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1db4ae0c-dafc-42ea-a227-2d46deee38fc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
+  },
+  "id": "G9XYtXUikwis1CMm",
+  "tags": []
+}

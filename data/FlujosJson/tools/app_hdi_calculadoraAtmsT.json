@@ -1,0 +1,280 @@
+{
+  "name": "app-hdi-calculadoraAtmsT",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -380,
+        180
+      ],
+      "id": "0cfb6861-cf1a-4f03-9817-7740879d8c38",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\nfunction calcularFaltanteATM(input) {\n  try {\n    const { certificadoTDV, marca, cupo, dispensado, billValues } = input;\n\n    if (!certificadoTDV || !marca || !cupo || !dispensado || !billValues) {\n      throw new Error('Faltan parámetros requeridos: certificadoTDV, marca, cupo, dispensado, billValues');\n    }\n\n    const cupoNormalizado = typeof cupo === 'number' ? cupo : parseInt(cupo, 10);\n    const cupoMillones = cupoNormalizado >= 100000000 ? Math.round(cupoNormalizado / 1000000) : cupoNormalizado;\n\n    let prov_Total = {};\n\n    if (marca.toLowerCase() === 'ncr' && cupoMillones === 411) {\n      prov_Total = {\n        TYPE1: 2300,\n        TYPE2: 2300,\n        TYPE3: 2300,\n        TYPE4: 2000\n      };\n    } else if (marca.toUpperCase() === 'DIEBOLD' && cupoMillones === 411) {\n      prov_Total = {\n        TYPE1: 2300,\n        TYPE2: 2300,\n        TYPE3: 2000,\n        TYPE4: 2300\n      };\n    } else if (marca.toUpperCase() === 'DIEBOLD' && cupoMillones === 296) {\n      prov_Total = {\n        TYPE1: 4600,\n        TYPE2: 2300,\n        TYPE3: 2000,\n        TYPE4: 2300\n      };\n    } else if (marca.toUpperCase() === 'DIEBOLD' && cupoMillones === 405) {\n      prov_Total = {\n        TYPE1: 2300,\n        TYPE2: 2300,\n        TYPE3: 2000,\n        TYPE4: 2000\n      };\n    } else if (marca.toUpperCase() === 'WINCOR' && cupoMillones === 405) {\n      prov_Total = {\n        TYPE1: 2300,\n        TYPE2: 2300,\n        TYPE3: 2000,\n        TYPE4: 2000\n      };\n    } \n    else {\n      // Valores por defecto\n      prov_Total = {\n        TYPE1: 1,\n        TYPE2: 1,\n        TYPE3: 1,\n        TYPE4: 1\n      };\n    }\n\n    const remanente = {};\n    for (const type in prov_Total) {\n      if (dispensado[type] !== undefined) {\n        remanente[type] = prov_Total[type] - dispensado[type];\n      } else {\n        remanente[type] = prov_Total[type];\n      }\n    }\n\n    let totalRemanente = 0;\n    for (const type in remanente) {\n      if (billValues[type] !== undefined) {\n        totalRemanente += remanente[type] * billValues[type];\n      }\n    }\n\n    const faltante = certificadoTDV - totalRemanente;\n\n    return faltante;\n\n  } catch (error) {\n    throw new Error(`Error en el cálculo ATM: ${error.message}`);\n  }\n}\n\nconst resultadoFaltante = calcularFaltanteATM(input);\n\n// ✅ n8n Tools Agent solo acepta string plano como respuesta\nreturn [\n  {\n    json: {\n      diferencia: resultadoFaltante.toString()\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        360
+      ],
+      "id": "d7625105-2ca9-4eb2-8e13-ff20f6cc8490",
+      "name": "Code",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "olaQbIhYtGacj1jb",
+          "mode": "list",
+          "cachedResultName": "app-hdi-calculadoraAtmsT"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "certificadoTDV": "={{ $json.certificadoTDV }}",
+            "dispensado": "={{ $json.dispensado }}",
+            "billValues": "={{ $json.billValues }}",
+            "cupo": "={{ $json.cupo }}",
+            "marca": "={{ $json.marca }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "certificadoTDV",
+              "displayName": "certificadoTDV",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "marca",
+              "displayName": "marca",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "cupo",
+              "displayName": "cupo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "dispensado",
+              "displayName": "dispensado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            },
+            {
+              "id": "billValues",
+              "displayName": "billValues",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        360,
+        180
+      ],
+      "id": "b0bbf035-c3cb-40b4-88d4-ce19d0536d27",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtener las variables de entrada desde el nodo anterior\nconst dispensado = $json.dispensado;\nconst certificadoTDV = $json.certificadoTDV;\nconst prov_Total = $json.prov_Total;\nconst billValues = $json.billValues;\n\n// Función calculadora\nfunction calculadora(dispensado, certificadoTDV, prov_Total, billValues) {\n    // Paso 1: Calcular los valores de \"remanente\" para cada Type\n    const remanente = {};\n    for (const type in prov_Total) {\n        remanente[type] = prov_Total[type] - dispensado[type];\n    }\n\n    // Paso 2: Calcular el total_remanente\n    let total_remanente = 0;\n    for (const type in remanente) {\n        total_remanente += remanente[type] * billValues[type];\n    }\n\n    // Paso 3: Calcular y retornar el faltante\n    const faltante = certificadoTDV - total_remanente;\n    return faltante;\n}\n\n// Llamar a la función calculadora\nconst resultadoFaltante = calculadora(dispensado, certificadoTDV, prov_Total, billValues);\n\n// Retornar el resultado\n/*\nreturn {\n    json: {\n        faltante: resultadoFaltante,\n    },\n};\n*/\n// ✅ n8n Tools Agent solo acepta string plano como respuesta\n\nreturn resultadoFaltante.toString();\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -380,
+        360
+      ],
+      "id": "a41eecb0-4674-4cfc-82b3-6679b1ee122c",
+      "name": "Code1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "### Ejemplo entrada atmCalculadora\n### Entrada\n```json\n{\n  \"certificadoTDV\": 97830000,\n  \"marca\": \"ncr\",\n  \"cupo\": 411000000,\n  \"dispensado\": {\n    \"TYPE1\": 1023,\n    \"TYPE2\": 1023,\n    \"TYPE3\": 1023,\n    \"TYPE4\": 1023\n  },\n  \"billValues\": {\n    \"TYPE1\": 50000,\n    \"TYPE2\": 10000,\n    \"TYPE3\": 10000,\n    \"TYPE4\": 20000\n  }\n}\n```\n\n### Salida:\n```json\n{\n   \"diferencia\": -11100000\n}\n```\n\n### OJO:\nSi se quiere simular Cambiar en CODE2 inData/inDataT",
+        "height": 660,
+        "width": 400,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -940,
+        -160
+      ],
+      "id": "85e69ded-a039-4864-ac70-563d1367d1ff",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $('inData').first().json;\n\nfunction calcularFaltanteATM(input) {\n  try {\n    const { certificadoTDV, cupo, dispensado, billValues } = input;\n\n    // Validación mínima de campos requeridos\n    if (!certificadoTDV || !cupo || !dispensado || !billValues) {\n      throw new Error('Faltan parámetros requeridos: certificadoTDV, cupo, dispensado, billValues');\n    }\n\n    // Asumiendo que $('MongoDB').first().json.prov_total ya contiene TYPE1, TYPE2, TYPE3 y TYPE4\n    /** @type {{ [key: string]: number }} */\n    let prov_Total = {\n      TYPE1: $('MongoDB').first().json.prov_total.TYPE1,\n      TYPE2: $('MongoDB').first().json.prov_total.TYPE2,\n      TYPE3: $('MongoDB').first().json.prov_total.TYPE3,\n      TYPE4: $('MongoDB').first().json.prov_total.TYPE4\n    };\n\n    // Calcula remanente por cada type\n    /** @type {{ [key: string]: number }} */\n    const remanente = {};\n    for (const type in prov_Total) {\n      if (dispensado[type] !== undefined) {\n        remanente[type] = prov_Total[type] - dispensado[type];\n      } else {\n        remanente[type] = prov_Total[type];\n      }\n    }\n\n    // Calcula el valor monetario total del remanente\n    let totalRemanente = 0;\n    for (const type in remanente) {\n      if (billValues[type] !== undefined) {\n        totalRemanente += remanente[type] * billValues[type];\n      }\n    }\n\n    // Diferencia final\n    const faltante = certificadoTDV - totalRemanente;\n\n    return {\n      diferencia: Math.abs(faltante),\n      error: null\n    };\n\n  } catch (error) {\n    let mse = 'Fatal';\n    if (error instanceof Error) {\n      mse += ': ' + error.message\n    }\n    return {\n      diferencia: null,\n      error: mse\n    }\n  }\n}\n\nconst resultado = calcularFaltanteATM(input);\n\n// ✅ n8n Tools Agent solo acepta string plano como respuesta\nreturn [\n  {\n    json: {\n      diferencia: resultado.diferencia,\n      error: resultado.error\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        360,
+        -120
+      ],
+      "id": "c78e7cff-3f39-419b-b45a-4f6565a6f8e8",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "collection": "data_calculadora",
+        "options": {},
+        "query": "={\n  \"marca\": \"{{ $json.marca }}\", \n  \"cupo\": {{ $json.cupo }}\n} "
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        20,
+        -120
+      ],
+      "id": "ebc47a9a-eb62-431e-bba4-2279ce1ca81a",
+      "name": "MongoDB",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "J6HuzpFN5ghJjIF7",
+          "name": "MongoDB account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"certificadoTDV\": 0,\n  \"marca\": \"DIEBOLD\",\n  \"cupo\": 296000000,\n  \"dispensado\": {\n    \"TYPE1\": 1,\n    \"TYPE2\": 1,\n    \"TYPE3\": 1,\n    \"TYPE4\": 1\n  },\n  \"billValues\": {\n    \"TYPE1\": 50000,\n    \"TYPE2\": 100000,\n    \"TYPE3\": 10000,\n    \"TYPE4\": 20000\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -100,
+        180
+      ],
+      "id": "ea82d3e1-b8f7-4c04-a580-efe10cee956d",
+      "name": "inDataT"
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"certificadoTDV\": 111740000,\n  \"marca\": \"DIEBOLD\",\n  \"cupo\": 411000000,\n  \"dispensado\": {\n    \"TYPE1\": 498,\n    \"TYPE2\": 2243,\n    \"TYPE3\": 1486,\n    \"TYPE4\": 1760\n  },\n  \"billValues\": {\n    \"TYPE1\": 50000,\n    \"TYPE2\": 100000,\n    \"TYPE3\": 10000,\n    \"TYPE4\": 20000\n  }\n}\n"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -380,
+        -120
+      ],
+      "id": "adcd5fc1-739b-4953-94af-c84fdb949e7f",
+      "name": "inData",
+      "notesInFlow": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "inDataT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        []
+      ]
+    },
+    "Code2": {
+      "main": [
+        []
+      ]
+    },
+    "MongoDB": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "inDataT": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "inData": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a1acffd7-9a5b-4473-ab2f-ce7ef18de34a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
+  },
+  "id": "olaQbIhYtGacj1jb",
+  "tags": []
+}

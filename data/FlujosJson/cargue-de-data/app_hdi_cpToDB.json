@@ -82,7 +82,7 @@
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "app_hdi_readFile",
+        "path": "app_hdi_cpToDB",
         "responseMode": "responseNode",
         "options": {
           "rawBody": true
@@ -263,11 +263,11 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "b7251e9a-04eb-452a-834c-35ac4eddb81b",
+  "versionId": "885ed16d-43e4-4252-a640-0916147deb42",
   "meta": {
     "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
   },

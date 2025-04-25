@@ -1,0 +1,218 @@
+{
+  "name": "app_hdi_provTotalCalculadora",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d9df1528-5b36-463a-b6fa-670c95526403",
+              "name": "marca",
+              "value": "DIEBOLD",
+              "type": "string"
+            },
+            {
+              "id": "366b68b7-aefd-49e4-8437-f1aacb224665",
+              "name": "cupo",
+              "value": 296000000,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        160,
+        -180
+      ],
+      "id": "817c86c3-f783-46b5-bba5-ee0c603a5a6c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\"marca\":\"NCR\",\"cupo\":0}"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -200,
+        20
+      ],
+      "id": "909f0b21-68f2-498a-a144-00718036264f",
+      "name": "When Executed by Another Workflow",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "cqDm1tlBZaINCBQZ",
+          "mode": "list",
+          "cachedResultName": "app_hdi_provTotalCalculadora"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "marca": "={{ $json.marca }}",
+            "cupo": "={{ $json.cupo }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "marca",
+              "displayName": "marca",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "cupo",
+              "displayName": "cupo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        540,
+        -180
+      ],
+      "id": "fb3329fd-e98e-499b-ac39-f3a21fed06d2",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        -180
+      ],
+      "id": "270e297b-b964-4d2f-a879-dd73ed12e25d",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "content": "## Ejemplo json _cpData\n### Entrada\n```json\n{\"codigo\": 6116}\n```\n\n### Salida:\n```json\n{\n\"_id\": \n\"67f42ead7381a1b9c04e5910\",\n\"codigo\": \n6116,\n\"__EMPTY\": \n1136,\n\"admon\": \n\"TRANSBANK\",\n\"codigo_suc\": \n976,\n\"cupo\": \n411000000,\n\"disp_mf\": \n\"Dispensador\",\n\"fact_tdv\": \n\"URBANO\",\n\"fechaProcesamiento\": \n\"2025-04-08T06:00:38.451Z\",\n\"fondo\": \n\"BARRANQUILLA\",\n\"gav1\": \n50000,\n\"gav2\": \n100000,\n\"gav3\": \n10000,\n\"gav4\": \n20000,\n\"gav5\": \n0,\n\"marca\": \n\"DIEBOLD\",\n\"nombre\": \n\"ATM OLIMPICA MURILLO\",\n\"nombre_corto\": \n\"OLIMPMURIL1\"\n}\n```",
+        "height": 440,
+        "width": 380,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -200
+      ],
+      "id": "57182189-495d-4fbb-9002-42b1cbedb20c",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "collection": "=data_calculadora",
+        "options": {},
+        "query": "={\n  \"marca\": {{ $json.marca ? `\"${$json.marca}\"` : \"null\" }},\n  \"cupo\": {{ $json.cupo ?? \"null\" }}\n}"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        300,
+        20
+      ],
+      "id": "a483ae67-f205-44e8-a956-3d8421937b88",
+      "name": "MongoDB",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "J6HuzpFN5ghJjIF7",
+          "name": "MongoDB account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\n// Verificar si el objeto está vacío\nconst isEmpty = Object.keys(input).length === 0 && input.constructor === Object;\n\nif (isEmpty) {\n  return [\n    {\n      json: {\n        marca: null,\n        cupo: null,\n        prov_total: {\n          TYPE1: null,\n          TYPE2: null,\n          TYPE3: null,\n          TYPE4: null\n        }\n      }\n    }\n  ];\n} else {\n  // Retorna el json original si no está vacío\n  return [\n    {\n      json: input\n    }\n  ];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        20
+      ],
+      "id": "12d25bd6-c81c-4cdb-9594-8eaf3aebe526",
+      "name": "Code"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8c82e0e6-ce40-4bb1-b940-44ab7098d55c",
+  "meta": {
+    "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
+  },
+  "id": "cqDm1tlBZaINCBQZ",
+  "tags": []
+}

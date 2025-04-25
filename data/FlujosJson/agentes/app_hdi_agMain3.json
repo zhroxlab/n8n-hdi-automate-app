@@ -1,0 +1,861 @@
+{
+  "name": "app_hdi_agMain3",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        100,
+        -440
+      ],
+      "id": "b8160e65-d58a-4dfd-9d81-0033bce773fe",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "\n{\n\"_id\": \n\"6802893d62892fa1cab82d17\",\n\"json8\": \n{\n\"CÓDIGO FONDO\": \n73,\n\"CIUDAD\": \n\"PEREIRA\",\n\"CÓDIGO\": \n8831,\n\"NOMBRE CAJERO\": \n\"ATM SUPERINTER SANTA ISABEL\",\n\"FECHA\": \n20250317,\n\"CONTADORES\": \n338120000,\n\"CONTABILIDAD\": \n-58570000,\n\"REMANENTES\": \n8870000,\n\"PROVISIONES\": \n405000000,\n\"DIFERENCIA\": \n-560000,\n\"ESTADO\": \n\"SOBRANTE\",\n\"TIPO DIFERENCIA\": \n\"REVISAR TIRA\",\n\"SOBRANTE\": \n560000,\n\"RESPONSABLE\": \n\"SARA\",\n\"TDV\": \n\"TRANSBANK\"\n}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        360,
+        -440
+      ],
+      "id": "13411bae-d392-4881-9520-934b12ced7bf",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Procesa el siguiente JSON y aplica las modificaciones necesarias solo si `result` es `true` y `ruleMatched` corresponde a una de las reglas documentadas. Si no se cumple ninguna regla, devuelve el JSON sin cambios estructurales, salvo el campo `\"EXPLICACIÓN\"`.\n\n---\n\n### 📥 JSON de entrada:\n\n```json\n{{ JSON.stringify($('dataAtm').item.json.dataAtm) }}\n```\n\n---\n\n### 📌 Tabla de reglas y campos a modificar\n\nAplicar cambios considerando:\n- `result`: {{ $json.result }}\n- `ruleMatched`: {{ $json.ruleMatched }}\n\n---\n\n#### 🔹 Si ruleMatched es **R1**\n```json\n{\n  JUSTIFICACIÓN: \"FÍSICO\",\n  RATIFICAR Y GRABAR DIFERENCIA: \"SÍ\",\n  NUEVO ESTADO: \"CONTABILIZACIÓN SOBRANTE FÍSICO\",\n  OBSERVACIÓN: \"CALCULADORA ARROJA EL SOBRANTE FÍSICO\",\n  FECHA INICIO CICLO: {{ $('historico_date').item.json.fecha }},\n  FECHA FIN CICLO: {{ $('dataAtm').item.json.dataAtm.FECHA }}\n}\n```\n\n#### 🔹 Si ruleMatched es **R2**\n```json\n{\n  JUSTIFICACIÓN: \"FÍSICO\",\n  RATIFICAR Y GRABAR DIFERENCIA: \"SÍ\",\n  NUEVO ESTADO: \"FALTANTE EN ARQUEO\",\n  OBSERVACIÓN: \"CALCULADORA ARROJA EL FALTANTE FÍSICO\",\n  FECHA INICIO CICLO: {{ $('historico_date').item.json.fecha }},\n  FECHA FIN CICLO: {{ $('dataAtm').item.json.dataAtm.FECHA }}\n}\n```\n\n#### 🔹 Si ruleMatched es **R3**\n```json\n{\n  JUSTIFICACIÓN: \"CONTABLE\",\n  RATIFICAR Y GRABAR DIFERENCIA: \"NO\",\n  NUEVO ESTADO: \"MALAS RUTINAS\",\n  OBSERVACIÓN: \"POR MALA RUTINA - ADICIÓN ERRADA\"\n}\n```\n\n#### 🔹 Si ruleMatched es **R41** o **R42**\n```json\n{\n  JUSTIFICACIÓN: \"CONTABLE\",\n  RATIFICAR Y GRABAR DIFERENCIA: \"NO\",\n  NUEVO ESTADO: \"ERROR EN TRANSMISIÓN DE CONTADORES\",\n  OBSERVACIÓN: {{ $('dataAtm').item.json.dataAtm.FECHA }}\n}\n```\n\n#### 🔹 Si ruleMatched es **R51**\n```json\n{\n  JUSTIFICACIÓN: \"CONTABLE\",\n  RATIFICAR Y GRABAR DIFERENCIA: \"NO\",\n  NUEVO ESTADO: \"CONTABILIZACIÓN SOBRANTE CONTABLE\",\n  OBSERVACIÓN: {{ $('dataAtm').item.json.dataAtm.FECHA }}\n}\n```\n\n#### 🔹 Si ruleMatched es **R52**\n```json\n{\n  JUSTIFICACIÓN: \"CONTABLE\",\n  RATIFICAR Y GRABAR DIFERENCIA: \"SÍ\",\n  NUEVO ESTADO: \"CONTABILIZACIÓN SOBRANTE CONTABLE\",\n  OBSERVACIÓN: {{ $('dataAtm').item.json.dataAtm.FECHA }},\n  FECHA INICIO CICLO: {{ $('historico_date').item.json.fecha }},\n  FECHA FIN CICLO: {{ $('dataAtm').item.json.dataAtm.FECHA }}\n}\n```\n\n#### 🔹 Si `result` es `false` (ninguna regla aplica)\n```json\n{\n  NUEVO ESTADO: \"PENDIENTE POR CUADRE (SIN REGLA APLICADA)\"\n}\n```\n\n---\n\n### 📤 Formato de salida obligatorio\n\nDevuelve el JSON original modificado (si aplica) más el campo:\n\n```json\n\"EXPLICACIÓN\": {\n  \"regla_aplicada\": \"R#\" o \"ninguna\",\n  \"campos_modificados\": [\"...\"],\n  \"fuentes_usadas\": {\n    \"calculadoraAtm\": {{ $('atm_calculadora').item.json.diferencia }},\n    \"provTotalAtm\": {\n      \"TYPE1\": {{ $('prov_total_atm').item.json.TYPE1 }},\n      \"TYPE2\": {{ $('prov_total_atm').item.json.TYPE2 }},\n      \"TYPE3\": {{ $('prov_total_atm').item.json.TYPE3 }},\n      \"TYPE4\": {{ $('prov_total_atm').item.json.TYPE4 }}\n    },\n    \"provTotalCalculadora\": {{ JSON.stringify($('prov_total_calculadora').item.json.prov_total) }},\n    \"historicoDate\": {{ $('historico_date').item.json.fecha }}\n  },\n  \"motivo\": \"Justificación basada en los valores procesados y regla aplicada.\"\n}\n```\n\n",
+        "options": {
+          "systemMessage": "Eres un agente analista inteligente especializado en procesos bancarios, con un enfoque en el cuadre de cajeros automáticos (ATM). Tu función principal es analizar un JSON de entrada que representa un resumen contable de un ATM y, de acuerdo con un conjunto de reglas estrictamente definidas, decidir si deben realizarse modificaciones a sus campos.\n\n### TU MISIÓN\n\n1. Determina si se aplica alguna regla predefinida basada en los datos de entrada.\n2. Si se aplica una regla:\n    - Modifica únicamente los campos indicados por dicha regla.\n    - Añade un campo \"EXPLICACIÓN\" que justifique la acción.\n3. Si **no se aplica ninguna regla**, devuelve el JSON **sin modificaciones estructurales**, pero incluyendo el campo \"EXPLICACIÓN\" indicando que no se aplicó ninguna regla.\n\n### FORMATO DE RESPUESTA\n\nLa salida debe ser el **mismo JSON de entrada**, pero con los campos definidos por la regla **insertados o actualizados directamente** en el mismo objeto.\n\nEl campo \"EXPLICACIÓN\" debe agregarse **junto con los demás campos**, no como respuesta separada. Si `result` es `false`, devuelve el JSON sin ninguna modificación salvo \"EXPLICACIÓN\".\n\n\nTu salida debe ser **exclusivamente un JSON válido**. No incluyas comentarios, explicaciones adicionales ni texto fuera del objeto JSON.\n\nEjemplo del campo `EXPLICACIÓN` que debes incluir:\n\n```json\n\"EXPLICACIÓN\": {\n  \"regla_aplicada\": \"R#: nombre de la regla\",         // o \"ninguna\"\n  \"campos_modificados\": [ \"campo1\", \"campo2\" ],\n  \"fuentes_usadas\": {\n    \"calculadoraAtm\": { ... },\n    \"provTotalAtm\": { ... },\n    \"provTotalCalculadora\": { ... },\n    \"historicoDate\": \"...\"\n  },\n  \"motivo\": \"Justificación clara basada en los datos disponibles\"\n}\n```\n\n### REGLAS DE COMPORTAMIENTO\n\n1. Usa los valores \"result\" y \"ruleMatched\" para determinar si se debe modificar el JSON.\n2. Solo modifica campos si \"result\": true y \"ruleMatched\" coincide con una regla activa.\n3. No modifiques ningún campo si \"result\": false o si \"ruleMatched\" es nulo.\n4. Todos los valores numéricos deben conservar su tipo original (`number`, no string).\n5. La propiedad \"regla_aplicada\" debe estar en el formato `R#: nombre de la regla`.\n\n### LISTA DE REGLAS DISPONIBLES (Para poder argumentar la propiedad \"regla_aplicada\")\n\n- **R1 – Contabilización Sobrante Físico**\n    \n    **Explicación:** Sobrante coincide exactamente con el valor calculado por la calculadora ATM\n\n- **R2 – Faltante en Arqueo**\n    \n    **Explicación:** Faltante coincide exactamente con el valor calculado por la calculadora ATM\n\n- **R3 – Contable Malas Rutinas**\n    \n    **Explicación:** Hay remanentes, la calculadora da cero y las provisiones entre tira y calculadora difieren\n\n- **R41 – Contable Error de Transmisión de Contadores**\n    \n    **Explicación:** Hay sobrante o faltante, pero la calculadora da cero\n\n- **R42 – Contable Error de Transmisión de Contadores**\n    \n    **Explicación:** Hay diferencia pero sin remanentes ni provisiones\n\n- **R51 – Contable Contabilización Sobrante Contable**\n    \n    **Explicación:** Hay sobrante, pero la calculadora da cero\n\n- **R52 – Contable Contabilización Sobrante Contable**\n    \n    **Explicación:** Hay diferencia, pero no hay remanentes\n\n### RESTRICCIONES CRÍTICAS\n\n- No alteres campos no especificados por la regla aplicada.\n- Devuelve siempre un único JSON con estructura válida.\n- El campo \"EXPLICACIÓN\" es obligatorio en todos los casos.\n\nEl campo \"motivo\" debe ser una justificación específica. Si se aplica una regla, explica por qué los datos coinciden con esa regla. Si no se aplica ninguna, explica por qué no se cumplió ninguna condición y si tienes valores muestralos.\n\n### 🛡️ Reglas adicionales obligatorias para cumplir\n\n> **ATENCIÓN**: Si una regla indica agregar un campo como \"NUEVO ESTADO\", **no debe modificarse un campo preexistente como \"ESTADO\"**. Solo se debe agregar el campo nuevo indicado.\n\n\n- **NUNCA** modifiques campos que no estén explícitamente indicados por la regla activa. Si un campo no está en la definición de la regla, déjalo intacto.\n- **TODOS** los campos definidos en la regla activa **deben ser agregados o actualizados**. Si falta alguno, el resultado es inválido.\n- No renombres ni sustituyas campos existentes, a menos que la regla lo indique de forma exacta (ej. `NUEVO ESTADO` no reemplaza `ESTADO`).\n- Verifica que \"JUSTIFICACIÓN\", \"OBSERVACIÓN\", fechas y demás campos **coincidan con el formato y texto provisto en la regla**.\n- En el campo \"campos_modificados\" de \"EXPLICACIÓN\", **incluye exactamente los nombres de los campos nuevos o alterados**.\n\n",
+          "maxIterations": 20
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        2500,
+        -220
+      ],
+      "id": "668ffc1d-a586-453d-8980-1354538df384",
+      "name": "AI Agent",
+      "executeOnce": false,
+      "notesInFlow": false,
+      "alwaysOutputData": false,
+      "retryOnFail": false,
+      "maxTries": 2,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2500,
+        -20
+      ],
+      "id": "865e9174-b1c8-42ba-8a9a-fdad29ff43ca",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "bDrVHByV826BPw8y",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        100,
+        -220
+      ],
+      "id": "6d438af7-1be9-4cc6-b3d1-58efa418976d",
+      "name": "When Executed by Another Workflow",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "app_hdi_agMain3",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        100,
+        -20
+      ],
+      "id": "8263e2b3-ce43-4df4-a823-631ebf7aed1b",
+      "name": "Webhook1",
+      "webhookId": "44b68463-18a3-449d-a73b-e29111bca611"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        3100,
+        -200
+      ],
+      "id": "2246b6e1-8a5c-45a9-8283-8b35101f7d5e",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "podQQjI1rlYv8f24",
+          "mode": "list",
+          "cachedResultName": "app_hdi_agMain3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        600,
+        -440
+      ],
+      "id": "57be977e-e53a-4f07-97f1-5f0449263a93",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {
+        "content": "### Ejemplo json _agMain\n### Entrada\n```json\n  {\n    \"dataAtm\": {\n      \"CÓDIGO FONDO\": 1,\n      \"CIUDAD\": \"MEDELLIN\",\n      \"CÓDIGO\": 8141,\n      \"NOMBRE CAJERO\": \"ATM PUERTA DEL NORTE 4\",\n      \"FECHA\": 20250217,\n      \" CONTADORES \": 238540000,\n      \" CONTABILIDAD \": 35820000,\n      \" REMANENTES \": 97830000,\n      \" PROVISIONES \": 296000000,\n      \" DIFERENCIA \": -4550000,\n      \" ESTADO \": \"SOBRANTE\",\n      \" TIPO DIFERENCIA \": \"REVISAR TIRA\",\n      \" SOBRANTE \": 4550000,\n      \"RESPONSABLE\": \"SARA\",\n      \"TDV\": \"TRANSBANK\"\n    }\n  }\n```\n\n### Salida:\n```json\n\n\n```",
+        "height": 680,
+        "width": 420,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        -440
+      ],
+      "id": "713da821-97a3-4715-95c6-432e59a841c2",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const webhookData = $json.body || {};  // Datos del Webhook\nconst setData = $json || {};           // Datos del nodo Set\n\n// Detectar la propiedad tipo \"json0\", \"json1\", etc.\nconst dynamicKeyWebhook = Object.keys(webhookData).find(k => /^json\\d+$/.test(k));\nconst dynamicKeySet = Object.keys(setData).find(k => /^json\\d+$/.test(k));\n\n// Seleccionar los datos válidos\nconst dataAtm = \n    (dynamicKeyWebhook && webhookData[dynamicKeyWebhook]) || \n    (dynamicKeySet && setData[dynamicKeySet]) || \n    null;\n\n// Resultado final\nconst finalData = { dataAtm };\n\nreturn [{ json: finalData }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -220
+      ],
+      "id": "c03e9cb9-a44e-4505-90d4-f02187eea1b8",
+      "name": "ValidateSourcePath",
+      "notes": "Valida cual de los dos orígenes que indican la ruta de archivo tienen un valor y lo envía al siguiente nodo."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Entrada: La salida del Agente de IA\nconst rawOutput = $input.first().json.output; // Accede al campo \"output\"\n\n// Extraer el contenido JSON eliminando el Markdown (```json y ```)\nconst jsonString = rawOutput\n  .replace(\"```json\", \"\") // Elimina el inicio del bloque Markdown\n  .replace(\"```\", \"\")     // Elimina el final del bloque Markdown\n  .trim();                // Elimina espacios en blanco adicionales\n\n// Parsear la cadena JSON a un objeto\nconst parsedJson = JSON.parse(jsonString);\n\n// Salida: Devolver el JSON limpio\nreturn [{\n  json: parsedJson\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2880,
+        -300
+      ],
+      "id": "40a978c3-08fa-4dae-a4f2-b0da2943e0a7",
+      "name": "Code",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "7J70pwvrBry0ca3F",
+          "mode": "list",
+          "cachedResultName": "app_hdi_cpData"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "codigo": "={{ $json.dataAtm[\"CÓDIGO\"] }}"
+          },
+          "matchingColumns": [
+            "codigo"
+          ],
+          "schema": [
+            {
+              "id": "codigo",
+              "displayName": "codigo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        700,
+        -220
+      ],
+      "id": "a071587e-7c81-42ae-bfd8-48812cfeb52b",
+      "name": "cp_data"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "xIMlEdnRvJ5OxDFV",
+          "mode": "list",
+          "cachedResultName": "app_hdi_agTira"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "idAtm": "={{ $('dataAtm').item.json.dataAtm[\"CÓDIGO\"] }}",
+            "marcaAtm": "ncr"
+          },
+          "matchingColumns": [
+            "codigo"
+          ],
+          "schema": [
+            {
+              "id": "marcaAtm",
+              "displayName": "marcaAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "idAtm",
+              "displayName": "idAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1220,
+        -220
+      ],
+      "id": "6acdaaae-2ef5-48f8-9d26-54b0e96086fe",
+      "name": "tira_atm",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "olaQbIhYtGacj1jb",
+          "mode": "list",
+          "cachedResultName": "app-hdi-calculadoraAtmsT"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "cupo": "={{ $('cp_data').item.json.cupo ?? null}}",
+            "certificadoTDV": "={{ $('dataAtm').item.json.dataAtm.REMANENTES ?? null}}",
+            "marca": "={{ $('cp_data').item.json.marca ?? null}}",
+            "dispensado": "={{ $('tira_atm').item.json ?? null}}",
+            "billValues": "={{ $('Merge').last().json.data ?? null}}"
+          },
+          "matchingColumns": [
+            "codigo"
+          ],
+          "schema": [
+            {
+              "id": "certificadoTDV",
+              "displayName": "certificadoTDV",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "marca",
+              "displayName": "marca",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "cupo",
+              "displayName": "cupo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "dispensado",
+              "displayName": "dispensado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            },
+            {
+              "id": "billValues",
+              "displayName": "billValues",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1400,
+        -220
+      ],
+      "id": "f1fc3b9d-cc2d-4987-83e9-e9c7f0967e3e",
+      "name": "atm_calculadora",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtener el primer (y único) item del input\nconst item = $('cp_data').first().json;\n\n// Construir el nuevo objeto con las claves TYPE#\nconst result = {\n  TYPE1: item.gav1,\n  TYPE2: item.gav2,\n  TYPE3: item.gav3,\n  TYPE4: item.gav4,\n};\n\n// Retornar como salida del nodo\nreturn [{ data: result }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        860,
+        -100
+      ],
+      "id": "9659f071-22d2-420d-97f0-42fc0629d5d1",
+      "name": "billValues"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        1040,
+        -220
+      ],
+      "id": "47a3b763-a472-4e03-9c77-491372b61251",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nreturn items.map(item => {\n  const key = Object.keys(item.json).find(k => k !== '_id');\n  return {\n    json: {\n      dataAtm: item.json[key]\n    }\n  };\n});\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        -220
+      ],
+      "id": "dbac94aa-ea8b-4577-8a8b-f2fdf9030781",
+      "name": "dataAtm"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "NCkJEUXLgsZlgKLO",
+          "mode": "list",
+          "cachedResultName": "app_hdi_historicoDate"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "fechaAtm": "={{ $('dataAtm').item.json.dataAtm.FECHA }}",
+            "idAtm": "={{ $('dataAtm').item.json.dataAtm[\"CÓDIGO\"] }}"
+          },
+          "matchingColumns": [
+            "codigo"
+          ],
+          "schema": [
+            {
+              "id": "idAtm",
+              "displayName": "idAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "fechaAtm",
+              "displayName": "fechaAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1600,
+        -220
+      ],
+      "id": "cc29558c-8466-402a-8f83-3f1278f9f9bf",
+      "name": "historico_date"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "cqDm1tlBZaINCBQZ",
+          "mode": "list",
+          "cachedResultName": "app_hdi_provTotalCalculadora"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "cupo": "={{ $('cp_data').item.json.cupo }}",
+            "marca": "={{ $('cp_data').item.json.marca ?? null }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "marca",
+              "displayName": "marca",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "cupo",
+              "displayName": "cupo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1780,
+        -220
+      ],
+      "id": "67753451-07be-4528-a4a5-5b1c221f858a",
+      "name": "prov_total_calculadora",
+      "executeOnce": false,
+      "notesInFlow": false,
+      "retryOnFail": false,
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "TRrefeWK7fSSyhpw",
+          "mode": "list",
+          "cachedResultName": "app_hdi_provTotalAtm"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "idAtm": "={{ $('dataAtm').item.json.dataAtm[\"CÓDIGO\"] }}",
+            "marcaAtm": "ncr"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "marcaAtm",
+              "displayName": "marcaAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "idAtm",
+              "displayName": "idAtm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1960,
+        -220
+      ],
+      "id": "437e0089-763b-43c6-977c-0635f4485ea8",
+      "name": "prov_total_atm"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "YiRNNv2xQlaA5J0i",
+          "mode": "list",
+          "cachedResultName": "app_hdi_rules2"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "json": "={{ $('Code1').item.json }}"
+          },
+          "matchingColumns": [
+            "json"
+          ],
+          "schema": [
+            {
+              "id": "json",
+              "displayName": "json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2320,
+        -220
+      ],
+      "id": "b6a94116-1056-4d34-b6e5-1ce93f789f8a",
+      "name": "rules"
+    },
+    {
+      "parameters": {
+        "jsCode": "\n\nreturn [{\n  json: {\n    itemSobrante: $('dataAtm').first().json.dataAtm.SOBRANTE ?? null,\n    itemFaltante: $('dataAtm').first().json.dataAtm.FALTANTE ?? null,\n    itemRemanentes: $('dataAtm').first().json.dataAtm.REMANENTES ?? null,\n    itemDiferencia: $('dataAtm').first().json.dataAtm.DIFERENCIA ?? null,\n    itemProvisiones: $('dataAtm').first().json.dataAtm.PROVISIONES ?? null,\n    valCalculadoraAtm: $('atm_calculadora').first().json.diferencia ?? null,\n    provTira: $('tira_atm').first().json ?? {},\n    provCal: $('prov_total_calculadora').first().json.prov_total ?? {}\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2140,
+        -220
+      ],
+      "id": "25e76f32-6ee3-4f65-a5ba-8dbcbc243fd9",
+      "name": "Code1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "ValidateSourcePath",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "ValidateSourcePath",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ValidateSourcePath": {
+      "main": [
+        [
+          {
+            "node": "dataAtm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cp_data": {
+      "main": [
+        [
+          {
+            "node": "billValues",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tira_atm": {
+      "main": [
+        [
+          {
+            "node": "atm_calculadora",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "billValues": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "tira_atm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "dataAtm": {
+      "main": [
+        [
+          {
+            "node": "cp_data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "atm_calculadora": {
+      "main": [
+        [
+          {
+            "node": "historico_date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "historico_date": {
+      "main": [
+        [
+          {
+            "node": "prov_total_calculadora",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prov_total_calculadora": {
+      "main": [
+        [
+          {
+            "node": "prov_total_atm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prov_total_atm": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "rules": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "rules",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a839961b-4c22-43c2-a819-45183d5457f6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
+  },
+  "id": "podQQjI1rlYv8f24",
+  "tags": []
+}

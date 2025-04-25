@@ -1,0 +1,151 @@
+{
+  "name": "app_hdi_rules2",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        40
+      ],
+      "id": "bcf1abfc-c08f-472a-b850-a1a032f84ee9",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json.json; // Ajusta esto si tu JSON no está anidado\n\nconst isNum = (v) => typeof v === 'number' && !isNaN(v);\n\nfunction areProvObjectsDifferent(provTira, provCal) {\n    const types = ['TYPE1', 'TYPE2', 'TYPE3', 'TYPE4'];\n    for (const type of types) {\n        if (provTira?.[type] !== provCal?.[type]) {\n            return true;\n        }\n    }\n    return false;\n}\n\n// Reglas estrictamente tipadas\n\nif (\n    isNum(input.itemSobrante) &&\n    input.itemSobrante !== 0 &&\n    isNum(input.valCalculadoraAtm) &&\n    input.valCalculadoraAtm === input.itemSobrante\n) {\n    return [{ json: { result: true, ruleMatched: \"R1\" } }];\n}\n\nif (\n    isNum(input.itemFaltante) &&\n    input.itemFaltante !== 0 &&\n    isNum(input.valCalculadoraAtm) &&\n    input.valCalculadoraAtm === input.itemFaltante\n) {\n    return [{ json: { result: true, ruleMatched: \"R2\" } }];\n}\n\nif (\n    isNum(input.valCalculadoraAtm) &&\n    input.valCalculadoraAtm === 0 &&\n    isNum(input.itemRemanentes) &&\n    input.itemRemanentes !== 0 &&\n    areProvObjectsDifferent(input.provTira, input.provCal)\n) {\n    return [{ json: { result: true, ruleMatched: \"R3\" } }];\n}\n\nif (\n    (\n        (isNum(input.itemSobrante) && input.itemSobrante !== 0) ||\n        (isNum(input.itemFaltante) && input.itemFaltante !== 0)\n    ) &&\n    isNum(input.valCalculadoraAtm) &&\n    input.valCalculadoraAtm === 0\n) {\n    return [{ json: { result: true, ruleMatched: \"R41\" } }];\n}\n\nif (\n    isNum(input.itemDiferencia) &&\n    input.itemDiferencia !== 0 &&\n    isNum(input.itemRemanentes) &&\n    input.itemRemanentes === 0 &&\n    isNum(input.itemProvisiones) &&\n    input.itemProvisiones === 0\n) {\n    return [{ json: { result: true, ruleMatched: \"R42\" } }];\n}\n\nif (\n    isNum(input.itemSobrante) &&\n    input.itemSobrante !== 0 &&\n    isNum(input.valCalculadoraAtm) &&\n    input.valCalculadoraAtm === 0\n) {\n    return [{ json: { result: true, ruleMatched: \"R51\" } }];\n}\n\nif (\n    isNum(input.itemRemanentes) &&\n    input.itemRemanentes === 0 &&\n    isNum(input.itemDiferencia) &&\n    input.itemDiferencia !== 0\n) {\n    return [{ json: { result: true, ruleMatched: \"R52\" } }];\n}\n\n// Ninguna regla se cumplió\nreturn [{\n    json: {\n        result: false,\n        ruleMatched: null\n        // reason: \"No se cumplieron las condiciones de ninguna regla con los valores actuales\"\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        -120
+      ],
+      "id": "403862d5-ac13-4aef-a216-60aee86801ac",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "YiRNNv2xQlaA5J0i",
+          "mode": "list",
+          "cachedResultName": "app_hdi_rules2"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "json": "={{ $json.json }}"
+          },
+          "matchingColumns": [
+            "json"
+          ],
+          "schema": [
+            {
+              "id": "json",
+              "displayName": "json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        560,
+        40
+      ],
+      "id": "aec983b0-5fea-4c36-920c-312033dafeb6",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"json\": {\n    \"itemSobrante\": 0,\n    \"itemFaltante\": 0,\n    \"itemRemanentes\": 999000,   \n    \"itemDiferencia\": 0,\n    \"itemProvisiones\": 0,\n    \"valCalculadoraAtm\": 0,      \n    \"provTira\": {\n      \"TYPE1\": 1000,\n      \"TYPE2\": 2000,\n      \"TYPE3\": 3000,\n      \"TYPE4\": 4000\n    },\n    \"provCal\": {\n      \"TYPE1\": 1000,\n      \"TYPE2\": 2500,              \n      \"TYPE3\": 3000,\n      \"TYPE4\": 4000\n    }\n  }\n}"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        -120
+      ],
+      "id": "e376cee7-4846-4f00-814a-cbfd75b67244",
+      "name": "inData1"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"json\": {\n  \"itemRemanentes\": 100000,\n  \"valCalculadoraAtm\": 0,\n  \"provTira\": {\n    \"TYPE1\": null,\n    \"TYPE2\": 2000,\n    \"TYPE3\": 3000,\n    \"TYPE4\": 4000\n  },\n  \"provCal\": {\n    \"TYPE1\": 1000,\n    \"TYPE2\": 2500,\n    \"TYPE3\": 3000,\n    \"TYPE4\": 4000\n  }\n}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        280,
+        40
+      ],
+      "id": "b4f06fab-e242-4227-b9b6-990ddb33d0a1",
+      "name": "inData0"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "inData0",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        []
+      ]
+    },
+    "inData1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "inData0": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "55e832ac-d881-41b2-8b95-4aad56902602",
+  "meta": {
+    "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
+  },
+  "id": "YiRNNv2xQlaA5J0i",
+  "tags": []
+}

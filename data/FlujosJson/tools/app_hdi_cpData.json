@@ -1,0 +1,204 @@
+{
+  "name": "app_hdi_cpData",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d9df1528-5b36-463a-b6fa-670c95526403",
+              "name": "codigo",
+              "value": 6116,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        800,
+        -100
+      ],
+      "id": "7ad2c771-3139-4145-aec4-78a7c3d82e3c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\"codigo\": 6116}"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        100
+      ],
+      "id": "f00a9b13-8bfe-4483-b589-f06b88163327",
+      "name": "When Executed by Another Workflow",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "7J70pwvrBry0ca3F",
+          "mode": "list",
+          "cachedResultName": "app_hdi_cpData"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "codigo": "={{ $json.codigo }}"
+          },
+          "matchingColumns": [
+            "codigo"
+          ],
+          "schema": [
+            {
+              "id": "codigo",
+              "displayName": "codigo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1180,
+        -100
+      ],
+      "id": "88d4760a-cfc7-4e76-a8de-fa518ba33c3d",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        440,
+        -100
+      ],
+      "id": "0baa2b0b-25f2-4b67-b5f4-6591883c22a2",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "content": "## Ejemplo json _cpData\n### Entrada\n```json\n{\"codigo\": 6116}\n```\n\n### Salida:\n```json\n{\n\"_id\": \n\"67f42ead7381a1b9c04e5910\",\n\"codigo\": \n6116,\n\"__EMPTY\": \n1136,\n\"admon\": \n\"TRANSBANK\",\n\"codigo_suc\": \n976,\n\"cupo\": \n411000000,\n\"disp_mf\": \n\"Dispensador\",\n\"fact_tdv\": \n\"URBANO\",\n\"fechaProcesamiento\": \n\"2025-04-08T06:00:38.451Z\",\n\"fondo\": \n\"BARRANQUILLA\",\n\"gav1\": \n50000,\n\"gav2\": \n100000,\n\"gav3\": \n10000,\n\"gav4\": \n20000,\n\"gav5\": \n0,\n\"marca\": \n\"DIEBOLD\",\n\"nombre\": \n\"ATM OLIMPICA MURILLO\",\n\"nombre_corto\": \n\"OLIMPMURIL1\"\n}\n```",
+        "height": 440,
+        "width": 380,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -120
+      ],
+      "id": "aa6f6c35-d914-44fb-94cd-9e5667406b3b",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "collection": "=date_cp",
+        "options": {},
+        "query": "={\"codigo\": {{ $json.codigo }}}"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        820,
+        100
+      ],
+      "id": "66b4bbd1-5ad3-451c-bd4a-34a11a1ec6fd",
+      "name": "MongoDB",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "J6HuzpFN5ghJjIF7",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\n// Verificar si el objeto está vacío\nconst isEmpty = Object.keys(input).length === 0 && input.constructor === Object;\n\nif (isEmpty) {\n  return [\n    {\n      json: {\n        codigo: null,\n        admon: null,\n        codigo_suc: null,\n        cupo: null,\n        disp_mf: null,\n        fact_tdv: null,\n        fechaProcesamiento: null,\n        fondo: null,\n        gav1: null,\n        gav2: null,\n        gav3: null,\n        gav4: null,\n        gav5: null,\n        marca: null,\n        nombre: null,\n        nombre_corto: null\n      }\n    }\n  ];\n} else {\n  // Retorna el json original si no está vacío\n  return [\n    {\n      json: input\n    }\n  ];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1180,
+        100
+      ],
+      "id": "7704efcb-0bd6-48fc-8df4-aff844f3ed09",
+      "name": "Code"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6b864f3f-368f-4345-aa1f-a0b441b212f1",
+  "meta": {
+    "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
+  },
+  "id": "7J70pwvrBry0ca3F",
+  "tags": []
+}

@@ -9,26 +9,12 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        2140,
-        120
+        1540,
+        540
       ],
       "id": "372683b0-5c8b-4a03-ac05-e6d5f5469b82",
       "name": "Respond to Webhook",
       "disabled": true
-    },
-    {
-      "parameters": {
-        "jsCode": "// Obtener los datos de la entrada del nodo anterior\nconst items = $input.all();\n\n// Filtrar los registros donde \"ESTADO\" sea \"FALTANTE\" y \"REMANENTES\" y \"PROVISIONES\" no sean ambos 0\nconst filteredItems = items.filter(item => {\n    const estado = item.json[\" ESTADO \"]?.trim() === \"SOBRANTE\";\n    const remanentes = item.json[\" REMANENTES \"] || 0;\n    //const provisiones = item.json[\" PROVISIONES \"] || 0;\n\n    return estado && remanentes !== 0 //(remanentes !== 0 || provisiones !== 0);\n});\n\n// Retornar los registros filtrados\nreturn filteredItems;"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        820,
-        60
-      ],
-      "id": "09e30555-3dd5-478e-bf82-22f32f228164",
-      "name": "FiltroAtmSobrantes",
-      "notes": "Filtro de cajeros, Estado en Sobrantes "
     },
     {
       "parameters": {
@@ -39,7 +25,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3,
       "position": [
-        560,
+        460,
         120
       ],
       "id": "cab340bb-71b5-4771-8921-e331f4cbfa38",
@@ -48,14 +34,14 @@
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "{\n  \"pathGestion\": \"./data/_gestion/inSara.xlsx\"\n}\n",
+        "jsonOutput": "{\n  \"pathGestion\": \"/Users/imfabra/Developer/repos/hdi_automate/data/_gestion/PlanillaGestion5Reglas.xlsx\"\n}\n",
         "options": {}
       },
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        80,
-        440
+        20,
+        680
       ],
       "id": "5ce78659-80e6-4891-b193-647d9b37df11",
       "name": "path_gestion"
@@ -98,8 +84,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        240,
-        440
+        180,
+        680
       ],
       "id": "fd53568d-f1bb-4a91-a003-5f4d9ff48689",
       "name": "_readFile"
@@ -108,29 +94,29 @@
       "parameters": {
         "content": "## Lectura archivos\n> Time: 8seg",
         "height": 240,
-        "width": 460,
+        "width": 480,
         "color": 6
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -40,
-        380
+        -100,
+        620
       ],
       "id": "47068e5d-fc25-43b0-965e-0a98b2ee70c9",
       "name": "Sticky Note1"
     },
     {
       "parameters": {
-        "content": "## Categorizar Atms  \n> Sobrantes\n> Faltantes",
-        "height": 340,
-        "width": 580
+        "content": "## Categorizar Atms  \n",
+        "height": 240,
+        "width": 260
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        720,
-        0
+        880,
+        60
       ],
       "id": "bf795b6e-ce8d-4092-9a06-c500595b86a8",
       "name": "Sticky Note2"
@@ -139,13 +125,13 @@
       "parameters": {
         "content": "## Ejecucion Agente Cuadre\nSe calculan los datos para el promt del agente",
         "height": 320,
-        "width": 380
+        "width": 540
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1660,
-        0
+        920,
+        440
       ],
       "id": "f9de5a4a-b6da-49c2-849f-d1da8db14549",
       "name": "Sticky Note3"
@@ -154,14 +140,14 @@
       "parameters": {
         "content": "## Update Tira / Historico\n> Time: 62seg\n\n\n\n\n\n\n\n\n\n\n> Time: 19seg",
         "height": 560,
-        "width": 460,
+        "width": 480,
         "color": 6
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -40,
-        -200
+        -100,
+        40
       ],
       "id": "2474c809-7b43-49e0-9470-486f44a8ec2f",
       "name": "Sticky Note"
@@ -172,7 +158,7 @@
       "typeVersion": 1,
       "position": [
         -300,
-        160
+        100
       ],
       "id": "f9954157-be0d-4422-ac81-512c376b2083",
       "name": "When clicking ‘Test workflow’"
@@ -186,8 +172,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        80,
-        -140
+        20,
+        100
       ],
       "id": "a66b032c-85d5-4a61-9d4b-0bc364438413",
       "name": "path_tira"
@@ -201,8 +187,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        80,
-        20
+        20,
+        260
       ],
       "id": "375aba81-87a8-4311-bc7c-7374a03a8661",
       "name": "path_historico"
@@ -298,8 +284,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        240,
-        20
+        180,
+        260
       ],
       "id": "9874d17b-8a76-4cf7-a00b-1683e17c3166",
       "name": "_loadFileHistorico"
@@ -353,66 +339,11 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        240,
-        -140
+        180,
+        100
       ],
       "id": "5d921594-c9a4-493c-808f-7bf463dc744e",
       "name": "_tiraToDB"
-    },
-    {
-      "parameters": {
-        "jsCode": "// Obtener los datos de la entrada del nodo anterior\nconst items = $input.all();\n\n// Filtrar los registros donde \"ESTADO\" sea \"FALTANTE\" y \"REMANENTES\" y \"PROVISIONES\" no sean ambos 0\nconst filteredItems = items.filter(item => {\n    const estado = item.json[\" ESTADO \"]?.trim() === \"FALTANTE\";\n    //const provisiones = item.json[\" PROVISIONES \"] || 0;\n\n    return estado //(remanentes !== 0 || provisiones !== 0);\n});\n\n// Retornar los registros filtrados\nreturn filteredItems;"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        820,
-        200
-      ],
-      "id": "087e12d0-a911-4893-b666-74d585ecd728",
-      "name": "FiltroAtmFaltantes",
-      "notes": "Filtro de cajeros, Estado en Sobrantes "
-    },
-    {
-      "parameters": {
-        "jsCode": "\n//return  $('FiltroAtmFaltantes').first().json\n\n\n// Obtener todos los ítems de las entradas\nconst atmsSobrantes = $('FiltroAtmSobrantes').all().map(item => item.json); // Datos de FiltroAtmSobrante (Input 1)\nconst atmsFaltantes = $('FiltroAtmFaltantes').all().map(item => item.json); // Datos de FiltroAtmFaltantes (Input 2)\n\n// Crear el nuevo JSON con la estructura deseada\nreturn [{\n    sobrantes: atmsSobrantes,\n    faltantes: atmsFaltantes\n}];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1160,
-        120
-      ],
-      "id": "bb45216f-7c04-42b5-8e93-db7b3ffe5692",
-      "name": "atmsCategorizados"
-    },
-    {
-      "parameters": {
-        "jsCode": "const typeRules = $input.first().json.caseRule\nconst resultado = $('atmsCategorizados').first().json[typeRules].filter(atm => atm[\"CÓDIGO\"] === $input.first().json.numAtm);\n\nreturn {\"caseRule\": $input.first().json.caseRule, \"dataAtm\": resultado[0]};"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1500,
-        120
-      ],
-      "id": "a20e86e4-48c8-4b89-971a-d58758f7896b",
-      "name": "FiltroEleccionCajero2"
-    },
-    {
-      "parameters": {
-        "mode": "raw",
-        "jsonOutput": "{\n  \"caseRule\": \"sobrantes\",\n  \"numAtm\": 8141\n}\n",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        1320,
-        120
-      ],
-      "id": "d64ea2ea-b20c-474e-befa-772489407b69",
-      "name": "Edit Fields"
     },
     {
       "parameters": {
@@ -457,23 +388,13 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1800,
-        120
+        1220,
+        540
       ],
       "id": "8a2c7fb8-806e-47de-8e63-72b20b545fce",
       "name": "app_hdi_callAg_Main",
+      "disabled": true,
       "notes": "llamado a processHistorico para calcular fecha inicio ciclo, este workflow recibe el id del cajero que se va a cuadrar y debe retornar la fecha de inicio de ciclo segun el algoritmo, este consulta el historico para traer los datos registrados con ese CODIGO de cajero y calcula la fecha."
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.1,
-      "position": [
-        980,
-        120
-      ],
-      "id": "4da91a7d-87cf-4de3-a1dc-5b650963d028",
-      "name": "Merge2"
     },
     {
       "parameters": {
@@ -484,8 +405,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        80,
-        180
+        20,
+        420
       ],
       "id": "cc1baf0a-ec73-4f1a-a21b-1a2bf12f0067",
       "name": "path_cp"
@@ -528,26 +449,244 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        240,
-        180
+        180,
+        420
       ],
       "id": "c92edaa8-75d3-4b3d-bc06-817b2826d75d",
       "name": "_loadCpToDB"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1520,
+        140
+      ],
+      "id": "fae51323-5369-4d9b-bafe-f1a67b93512d",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "podQQjI1rlYv8f24",
+          "mode": "list",
+          "cachedResultName": "app_hdi_agMain3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1780,
+        160
+      ],
+      "id": "a9a901fa-33a5-43f0-82ff-548bed775395",
+      "name": "app_hdi_callAg_Main1",
+      "notes": "llamado a processHistorico para calcular fecha inicio ciclo, este workflow recibe el id del cajero que se va a cuadrar y debe retornar la fecha de inicio de ciclo segun el algoritmo, este consulta el historico para traer los datos registrados con ese CODIGO de cajero y calcula la fecha."
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2100,
+        160
+      ],
+      "id": "58c39dad-28c0-402d-9e72-7eda5c71df7a",
+      "name": "Wait",
+      "webhookId": "198a6fb1-e084-4932-8ac3-357ad7e7156b"
+    },
+    {
+      "parameters": {
+        "content": "## Ejecucion Agente Cuadre\nSe calculan los datos para el promt del agente",
+        "height": 420,
+        "width": 920,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        -40
+      ],
+      "id": "1d8cd1da-9d12-49b6-841a-83674e145ffe",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst filtered = items.filter(item => {\n  const data = Object.values(item.json)[1]; // Accede al valor dentro de json0, json1, etc.\n  return (data.ESTADO === 'SOBRANTE' && data.REMANENTES !== 0) || data.ESTADO === 'FALTANTE';\n});\n\nreturn filtered;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        140
+      ],
+      "id": "7d18f0bd-9681-4454-89b8-638b0d4cdbe9",
+      "name": "FiltroAtmSobrantes1",
+      "notes": "Filtro de cajeros, Estado en Sobrantes "
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst data = Object.values(items[0].json)[0];\n\nreturn {\n  dataAtm: data\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        540
+      ],
+      "id": "f60d8f1b-144d-427f-ab3c-d3ba73b46fff",
+      "name": "Code2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Entrada: La salida del Agente de IA\nconst rawOutput = $input.first().json.output; // Accede al campo \"output\"\n\n// Extraer el contenido JSON eliminando el Markdown (```json y ```)\nconst jsonString = rawOutput\n  .replace(\"```json\", \"\") // Elimina el inicio del bloque Markdown\n  .replace(\"```\", \"\")     // Elimina el final del bloque Markdown\n  .trim();                // Elimina espacios en blanco adicionales\n\n// Parsear la cadena JSON a un objeto\nconst parsedJson = JSON.parse(jsonString);\n\n// Salida: Devolver el JSON limpio\nreturn [{\n  json: parsedJson\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1940,
+        160
+      ],
+      "id": "959104a8-15af-472c-bcb1-3c7139588dfd",
+      "name": "Code",
+      "disabled": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1780,
+        0
+      ],
+      "id": "e60eb9e7-fb94-43c7-b9c8-6d24ce4125dd",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "8119kYchjILwqc1M",
+          "mode": "list",
+          "cachedResultName": "app_hdi_GET_dataGestion"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        660,
+        140
+      ],
+      "id": "5c2c575a-cbf9-4e7b-9f2e-269fca35506c",
+      "name": "app_hdi_GET_dataGestion"
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "path_tira": [
+      {
+        "json": {
+          "rutaNCR": "./data/_scripts/code-data-tira-to-db/pull-tira/sbmdebst10_auth_tira_ncr031725.rpt",
+          "rutaDiebold": "./data/_scripts/code-data-tira-to-db/pull-tira/sbmdebst10_auth_tira_die031725.rpt"
+        }
+      }
+    ],
+    "_tiraToDB": [
+      {
+        "json": {
+          "output": "Conectado a MongoDB Procesando archivo Diebold... diebold: 0 documentos insertados, 294 documentos actualizados Procesando archivo NCR... ncr: 0 documentos insertados, 4897 documentos actualizados Procesamiento completado Conexión a MongoDB cerrada"
+        }
+      }
+    ],
+    "path_historico": [
+      {
+        "json": {
+          "pathPython": "./data/_scripts/migrar_excel_mongo.py",
+          "pathExcel": "./data/_historico/HISTORICO.xlsx",
+          "connectionStringMongo": "mongodb://localhost:27017",
+          "nombreDB": "db_app_hdi",
+          "nombreColection": "historico_atms",
+          "lote": "10000"
+        }
+      }
+    ],
+    "_loadFileHistorico": [
+      {
+        "json": {
+          "output": "Eliminando todos los registros de la coleccion historico_atms en la base db_app_hdi. Coleccion vaciada correctamente. Procesando 455413 filas en 46 lotes de 10000 filas cada uno. Migracion completada."
+        }
+      }
+    ],
+    "path_cp": [
+      {
+        "json": {
+          "rutaCP": "./data/_cp/cp.xlsx"
+        }
+      }
+    ],
+    "_loadCpToDB": [
+      {
+        "json": {
+          "output": "Conectado a MongoDB Procesando archivo: ./data/_cp/cp.xlsx CP: 0 documentos insertados, 5225 documentos actualizados Procesamiento completado Conexión a MongoDB cerrada"
+        }
+      }
+    ],
+    "path_gestion": [
+      {
+        "json": {
+          "pathGestion": "/Users/imfabra/Developer/repos/hdi_automate/data/_gestion/PlanillaGestion5Reglas.xlsx"
+        }
+      }
+    ],
+    "_readFile": [
+      {
+        "json": {
+          "exitCode": 0,
+          "stderr": "",
+          "stdout": "Documentos insertados correctamente"
+        }
+      }
+    ],
+    "Merge": [
+      {
+        "json": {
+          "exitCode": 0,
+          "stderr": "",
+          "stdout": "Documentos insertados correctamente"
+        }
+      }
+    ]
+  },
   "connections": {
-    "FiltroAtmSobrantes": {
-      "main": [
-        [
-          {
-            "node": "Merge2",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "path_gestion": {
       "main": [
         [
@@ -574,12 +713,7 @@
       "main": [
         [
           {
-            "node": "FiltroAtmSobrantes",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "FiltroAtmFaltantes",
+            "node": "app_hdi_GET_dataGestion",
             "type": "main",
             "index": 0
           }
@@ -656,70 +790,9 @@
         ]
       ]
     },
-    "FiltroAtmFaltantes": {
-      "main": [
-        [
-          {
-            "node": "Merge2",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "atmsCategorizados": {
-      "main": [
-        [
-          {
-            "node": "Edit Fields",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "FiltroEleccionCajero2": {
-      "main": [
-        [
-          {
-            "node": "app_hdi_callAg_Main",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Edit Fields": {
-      "main": [
-        [
-          {
-            "node": "FiltroEleccionCajero2",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "app_hdi_callAg_Main": {
       "main": [
-        [
-          {
-            "node": "Respond to Webhook",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Merge2": {
-      "main": [
-        [
-          {
-            "node": "atmsCategorizados",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "path_cp": {
@@ -743,13 +816,97 @@
           }
         ]
       ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "app_hdi_callAg_Main1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "app_hdi_callAg_Main1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FiltroAtmSobrantes1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "app_hdi_callAg_Main",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "app_hdi_GET_dataGestion": {
+      "main": [
+        [
+          {
+            "node": "FiltroAtmSobrantes1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "85a9e0f3-95aa-486d-9bfe-ebc39bf9d8f8",
+  "versionId": "d1f3d801-d10c-4391-988a-e8363552274d",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"
