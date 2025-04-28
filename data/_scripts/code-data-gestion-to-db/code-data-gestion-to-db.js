@@ -1,5 +1,7 @@
 const { MongoClient } = require('mongodb');
 const XLSX = require('xlsx');
+const fs = require('fs');
+const path = require('path');
 
 // Obtener la ruta del archivo desde los argumentos de la línea de comandos
 const filePath = process.argv[2];
@@ -7,6 +9,18 @@ const filePath = process.argv[2];
 if (!filePath) {
   console.error('No se proporcionó la ruta del archivo Excel');
   console.error('Uso: node code-data-gestion-to-db.js ./ruta/al/archivo.xlsx');
+  process.exit(1);
+}
+
+// Verificar si el archivo existe
+const absoluteFilePath = path.isAbsolute(filePath)
+  ? filePath
+  : path.resolve(process.cwd(), filePath);
+
+console.log(`Verificando archivo en: ${absoluteFilePath}`);
+
+if (!fs.existsSync(absoluteFilePath)) {
+  console.error(`Error: El archivo no existe en la ruta: ${absoluteFilePath}`);
   process.exit(1);
 }
 
@@ -45,8 +59,8 @@ async function run() {
   let client;
   try {
     // Leer el archivo Excel
-    console.log(`Procesando archivo: ${filePath}`);
-    const workbook = XLSX.readFile(filePath);
+    console.log(`Procesando archivo: ${absoluteFilePath}`);
+    const workbook = XLSX.readFile(absoluteFilePath);
     const sheetName = workbook.SheetNames[0]; // Primera hoja
     const worksheet = workbook.Sheets[sheetName];
 

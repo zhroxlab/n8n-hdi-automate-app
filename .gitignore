@@ -47,3 +47,19 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Datos: Ignora todo en data excepto FlujosJson y _scripts
+data/*
+!data/FlujosJson/
+!data/_scripts/
+
+# Ignora archivos Excel en cualquier directorio
+*.xlsx
+*.xls
+*.csv
+
+# Pero permite seguir los scripts específicos
+!data/_scripts/**/*.js
+
+data/_scripts/code-data-tira-to-db/pull-tira/sbmdebst10_auth_tira_die031725.rpt
+data/_scripts/code-data-tira-to-db/pull-tira/sbmdebst10_auth_tira_ncr031725.rpt
