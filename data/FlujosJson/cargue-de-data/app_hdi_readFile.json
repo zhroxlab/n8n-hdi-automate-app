@@ -25,8 +25,7 @@
         280
       ],
       "id": "5aeea184-4335-4624-9efd-0def2fe51615",
-      "name": "When clicking ‘Test workflow’",
-      "disabled": true
+      "name": "When clicking ‘Test workflow’"
     },
     {
       "parameters": {
@@ -41,12 +40,13 @@
       "id": "12dd3d99-a01a-4466-a688-e3fd3b785d2e",
       "name": "Trim(Campos)",
       "notesInFlow": true,
+      "disabled": true,
       "notes": "Elimina espacios en nombres de campo"
     },
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "{\n  \"pathGestion\": \n\"./data/_gestion/PlanillaGestion5Reglas.xlsx\"\n}\n",
+        "jsonOutput": "{\n  \"pathGestion\": \"/Users/imfabra/Developer/repos/hdi_automate/data/_gestion/inSara.xlsx\"\n}\n",
         "options": {}
       },
       "type": "n8n-nodes-base.set",
@@ -57,7 +57,6 @@
       ],
       "id": "7c67c57f-2992-4ee4-8268-b6fd845def56",
       "name": "SetPathManual1",
-      "disabled": true,
       "notes": "Se ingresa manualmente la ruta del archivo que se quiere leer desde disco."
     },
     {
@@ -99,8 +98,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        1740,
-        60
+        720,
+        -80
       ],
       "id": "b3f6b8b0-6f5b-4f9a-aef3-b4b968dc24eb",
       "name": "Respond to Webhook"
@@ -122,7 +121,8 @@
       ],
       "id": "4de970ae-dd75-47da-a906-bfaade005bac",
       "name": "Webhook",
-      "webhookId": "8106f96b-6681-473f-8875-edd9751689d5"
+      "webhookId": "8106f96b-6681-473f-8875-edd9751689d5",
+      "disabled": true
     },
     {
       "parameters": {
@@ -137,7 +137,8 @@
       ],
       "id": "926ed2c5-0f58-42c6-86fd-86cd5788158a",
       "name": "Read/Write Files from Disk",
-      "alwaysOutputData": true
+      "alwaysOutputData": true,
+      "disabled": true
     },
     {
       "parameters": {
@@ -151,17 +152,18 @@
         60
       ],
       "id": "0f40b055-a77f-47c2-89b0-72e7c39d3ec6",
-      "name": "Extract from File1"
+      "name": "Extract from File1",
+      "disabled": true
     },
     {
       "parameters": {
-        "command": "=node ./data/_scripts/code-data-gestion-to-db/code-data-gestion-to-db.js \"{{ $json.jsonArg }}\"\n"
+        "command": "=node ./data/_scripts/code-data-gestion-to-db/code-data-gestion-to-db.js {{ $('SetPathManual1').first().json.pathGestion }}\n"
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
-        1500,
-        60
+        500,
+        -80
       ],
       "id": "fe10d1c4-9222-4931-9762-cc15ea326f6d",
       "name": "Execute Command"
@@ -177,7 +179,8 @@
         60
       ],
       "id": "05f44a0d-3273-4ced-824a-cf2684be18af",
-      "name": "Code"
+      "name": "Code",
+      "disabled": true
     },
     {
       "parameters": {
@@ -190,7 +193,8 @@
         60
       ],
       "id": "dece7be5-85af-4153-8295-5c43dcfa16a5",
-      "name": "Code1"
+      "name": "Code1",
+      "disabled": true
     }
   ],
   "pinData": {},
@@ -246,6 +250,11 @@
             "node": "Read/Write Files from Disk",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -296,13 +305,7 @@
     },
     "Code1": {
       "main": [
-        [
-          {
-            "node": "Execute Command",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Execute Command": {
@@ -317,11 +320,11 @@
       ]
     }
   },
-  "active": true,
+  "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "1d532565-f264-4222-bf18-6aba2296b008",
+  "versionId": "4ba65a13-bf34-4720-9a74-974fadc22391",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "ae116b9c25ca09b6fc49d8e730094c0929b168373f3afe3e106b7c23d9778cc3"

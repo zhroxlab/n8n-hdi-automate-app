@@ -1,7 +1,7 @@
 {
   "name": "hdi-automation",
   "version": "1.0.0",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -46,7 +46,7 @@
     "embla-carousel-react": "^8.3.0",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.462.0",
-    "mongodb": "^6.15.0",
+    "mongodb": "^6.16.0",
     "n8n": "^1.88.0",
     "next-themes": "^0.3.0",
     "react": "^18.3.1",
