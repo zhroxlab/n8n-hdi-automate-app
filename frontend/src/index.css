@@ -1,8 +1,43 @@
+/* Añadir estos estilos al inicio del archivo */
+
+/* Estilos específicos para Electron */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: auto;
+}
+
+/* Ajustes para aplicación Electron */
+html.electron-app {
+  overflow: auto;
+}
+
+html.electron-app body {
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* Estilos para el contenedor principal en Electron */
+.electron-container {
+  width: 100%;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ajustes para el contenido principal para que tenga scroll propio */
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
   :root {
     --background: 224 71% 4%;
@@ -37,7 +72,7 @@
     --radius: 0.5rem;
   }
 }
- 
+
 @layer base {
   * {
     @apply border-border;
@@ -98,10 +133,15 @@
   --ai-blue: #3b82f6;
   --ai-darkBlue: #1d2c4e;
   --ai-dark: #0f172a;
+  --ai-darker: #0a0e1a;
 }
 
 .bg-ai-dark {
   background-color: var(--ai-dark);
+}
+
+.bg-ai-darker {
+  background-color: var(--ai-darker);
 }
 
 .bg-ai-blue {

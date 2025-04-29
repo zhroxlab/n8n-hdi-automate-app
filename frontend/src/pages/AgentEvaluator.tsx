@@ -23,32 +23,40 @@ const AgentEvaluator = () => {
       console.log("Item recibido desde la categorización:", selectedItem);
       setOriginalData({ data: [selectedItem] });
     }
-    
+
     handleStartProcess();
-    
+
     if (!selectedItem) {
       fetchOriginalData();
     }
+
+    // Asegurar que la página permita scroll
+    document.body.style.overflow = 'auto';
+
+    // Limpiar al desmontar
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, []);
 
   const fetchOriginalData = async () => {
     setIsLoadingOriginal(true);
     try {
       console.log(`Obteniendo datos originales desde ${endpoints.readFileGestion}/filtered`);
-      
+
       const response = await fetch(`${endpoints.readFileGestion}/filtered`);
-      
+
       if (!response.ok) {
         throw new Error(`Error al obtener datos originales: ${response.status} ${response.statusText}`);
       }
-      
+
       const data = await response.json().catch(e => {
         console.warn("Respuesta no es JSON válido");
         return { success: false, error: "Formato de respuesta inválido" };
       });
-      
+
       console.log('Datos originales recibidos:', data);
-      
+
       setOriginalData(data);
     } catch (error) {
       console.error("Error cargando datos originales:", error);
@@ -69,13 +77,13 @@ const AgentEvaluator = () => {
 
     try {
       console.log(`Realizando llamada al endpoint del agente: ${endpoints.procesarAgente}`);
-      
+
       const payload = selectedItem ? { itemData: selectedItem } : {};
-      
+
       console.log("Payload enviado al agente:", payload);
       console.log("Tipo de payload:", typeof payload);
       console.log("JSON.stringify del payload:", JSON.stringify(payload));
-      
+
       const response = await fetch(endpoints.procesarAgente, {
         method: 'POST',
         headers: {
@@ -83,35 +91,35 @@ const AgentEvaluator = () => {
         },
         body: JSON.stringify(payload)
       });
-      
+
       if (!response.ok) {
         throw new Error(`Error en la evaluación: ${response.status} ${response.statusText}`);
       }
-      
+
       const responseText = await response.text();
       console.log('Respuesta cruda del agente:', responseText);
-      
+
       let data;
       try {
         data = JSON.parse(responseText);
         console.log('Resultado parseado de la evaluación del agente:', data);
-        
+
         localStorage.setItem('agentResponse', responseText);
-        
+
       } catch (e) {
         console.error('Error parseando la respuesta como JSON:', e);
         throw new Error('La respuesta del servidor no es un JSON válido');
       }
-      
+
       console.log('Estructura completa de la respuesta:', data);
-      
+
       if (data && data.data) {
         console.log('Estructura de data:', data);
         console.log('data.data existe:', data.data);
-        
+
         if (data.data.EXPLICACIÓN) {
           console.log('EXPLICACIÓN encontrada:', data.data.EXPLICACIÓN);
-          
+
           if (typeof data.data.EXPLICACIÓN === 'object') {
             console.log('EXPLICACIÓN es un objeto');
             console.log('motivo en EXPLICACIÓN:', data.data.EXPLICACIÓN.motivo);
@@ -131,11 +139,11 @@ const AgentEvaluator = () => {
           console.log('No se encontró campo EXPLICACIÓN en la respuesta');
         }
       }
-      
+
       if (data && data.success === false) {
         throw new Error(data.error || "Error desconocido en el procesamiento del agente");
       }
-      
+
       setResult(data);
       setCompleted(true);
       toast.success("Evaluación finalizada con éxito", {
@@ -157,14 +165,14 @@ const AgentEvaluator = () => {
 
   const formatExplanation = (result: any) => {
     if (!result) return "";
-    
+
     console.log("formatExplanation - Input result:", result);
-    
+
     const explanation = result.EXPLICACIÓN;
     console.log("formatExplanation - Explanation field:", explanation);
-    
+
     if (!explanation) return "";
-    
+
     if (typeof explanation === 'string') {
       try {
         const parsedExp = JSON.parse(explanation);
@@ -175,17 +183,17 @@ const AgentEvaluator = () => {
         return explanation;
       }
     }
-    
+
     if (typeof explanation === 'object' && explanation !== null) {
       console.log("formatExplanation - Explanation is object with motivo:", explanation.motivo);
       return explanation.motivo || explanation["motivo"] || "";
     }
-    
+
     return "";
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 bg-ai-darker">
+    <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 bg-ai-darker overflow-auto">
       <div className="max-w-4xl w-full text-center mb-8 animate-fade-in">
         <h1 className="text-4xl font-bold mb-2 text-white tracking-tight">
           <span className="text-ai-blue text-glow">Evaluación</span> de Diferencias
@@ -217,8 +225,8 @@ const AgentEvaluator = () => {
                     <div className="bg-purple-900/30 border border-purple-500/30 rounded-lg p-4 mb-6">
                       <h4 className="text-sm font-medium text-purple-300 mb-2">Explicación del Agente</h4>
                       <p className="text-sm text-purple-200 whitespace-pre-wrap">
-                        {typeof result.data?.EXPLICACIÓN === 'object' && result.data?.EXPLICACIÓN?.motivo 
-                          ? result.data.EXPLICACIÓN.motivo 
+                        {typeof result.data?.EXPLICACIÓN === 'object' && result.data?.EXPLICACIÓN?.motivo
+                          ? result.data.EXPLICACIÓN.motivo
                           : formatExplanation(result.data) || "El agente ha procesado este ATM sin proporcionar explicación detallada."}
                       </p>
                     </div>
@@ -256,8 +264,8 @@ const AgentEvaluator = () => {
                       <div className="mt-6 p-4 bg-ai-darker/50 rounded border border-ai-blue/20">
                         <h4 className="text-ai-blue mb-2 font-semibold">EXPLICACIÓN</h4>
                         <p className="text-sm whitespace-pre-wrap">
-                          {typeof result.data.EXPLICACIÓN === 'object' && result.data.EXPLICACIÓN?.motivo 
-                            ? result.data.EXPLICACIÓN.motivo 
+                          {typeof result.data.EXPLICACIÓN === 'object' && result.data.EXPLICACIÓN?.motivo
+                            ? result.data.EXPLICACIÓN.motivo
                             : formatExplanation(result.data) || "El agente ha procesado este ATM sin proporcionar explicación detallada."}
                         </p>
                       </div>

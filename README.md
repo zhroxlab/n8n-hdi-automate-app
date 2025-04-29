@@ -1,154 +1,91 @@
 # HDI Automate
 
-Este proyecto está dividido en dos partes independientes para evitar conflictos de sistemas de módulos:
+## Tecnologías
 
-1. **Scripts y Backend (carpeta raíz)**: Utiliza CommonJS para scripts de procesamiento de datos y servidor n8n.
-2. **Frontend (carpeta frontend)**: Utiliza ESM para la aplicación React.
+### Frontend
+- React 18
+- Vite
+- TypeScript
+- TailwindCSS
+- Electron (para versión de escritorio)
+- Radix UI (componentes accesibles)
+- React Router
+- React Query
 
-## Requisitos Previos
+### Backend
+- Node.js
+- MongoDB
+- n8n (para automatización de flujos)
 
-- Node.js v18 o superior
-- npm v8 o superior
-- MongoDB instalado y ejecutándose (localhost:27017)
-- Git
+## Inicio rápido
 
-## Instalación y Configuración Inicial
-
-### 1. Clonar el repositorio
-
-```bash
-git clone https://github.com/tu-usuario/hdi_automate.git
-cd hdi_automate
-```
-
-### 2. Configurar el Backend (Scripts y n8n)
-
-```bash
-# Instalar dependencias en la raíz (solo MongoDB, n8n y xlsx)
-npm install
-```
-
-Verificar que el archivo `package.json` en la raíz tenga `"type": "commonjs"` y solo las dependencias necesarias:
-
-```json
-{
-  "name": "hdi-scripts",
-  "version": "1.0.0",
-  "type": "commonjs",
-  "scripts": {
-    "start-n8n": "npx n8n"
-  },
-  "dependencies": {
-    "mongodb": "^6.16.0",
-    "n8n": "^1.88.0",
-    "xlsx": "^0.20.2"
-  }
-}
-```
-
-### 3. Configurar el Frontend
+### Desarrollo del Frontend
 
 ```bash
 # Navegar a la carpeta frontend
 cd frontend
 
-# Instalar dependencias del frontend
+# Instalar dependencias
 npm install
-```
 
-Verificar que el archivo `frontend/package.json` tenga `"type": "module"`.
-
-## Estructura del Proyecto
-
-```
-hdi_automate/
-│
-├── data/                       # Datos y scripts
-│   ├── _scripts/               # Scripts de procesamiento
-│   │   ├── code-data-cp-to-db/    # Script para cargar CP a MongoDB
-│   │   └── code-data-gestion-to-db/ # Script para cargar gestión a MongoDB
-│   │
-│   ├── _gestion/               # Archivos Excel de gestión
-│   ├── _cp/                    # Archivos Excel de CP
-│   └── ...                     # Otros directorios de datos
-│
-├── frontend/                   # Aplicación React/Vite
-│   ├── src/                    # Código fuente del frontend
-│   │   ├── components/         # Componentes reutilizables
-│   │   ├── config/             # Configuración (endpoints, etc.)
-│   │   └── ...                 # Otros archivos del frontend
-│   │
-│   ├── package.json            # Dependencias del frontend (ESM)
-│   ├── vite.config.ts          # Configuración de Vite
-│   └── tsconfig.json           # Configuración de TypeScript
-│
-├── package.json                # Dependencias scripts/n8n (CommonJS)
-└── README.md                   # Este archivo
-```
-
-## Ejecución
-
-### 1. Iniciar n8n (Backend)
-
-```bash
-# En la carpeta raíz
-npm run start-n8n
-```
-
-El servidor n8n se iniciará en `http://localhost:5678`. Accede a esta URL para ver la interfaz de n8n.
-
-### 2. Iniciar el Frontend
-
-```bash
-# En una nueva terminal, navega a la carpeta frontend
-cd frontend
-
-# Inicia el servidor de desarrollo
+# Iniciar el servidor de desarrollo
 npm run dev
 ```
 
-El frontend estará disponible en `http://localhost:8080`.
+El frontend estará disponible en `http://localhost:5173`.
 
-## Uso de Endpoints
+### Desarrollo con Electron
 
-Los endpoints disponibles para integración entre el frontend y n8n son:
+```bash
+# En la carpeta frontend
+npm run electron:dev
+```
 
-| Endpoint | Método | Descripción | Parámetros |
-|----------|--------|-------------|------------|
-| `/webhook/app_hdi_readFile` | POST | Carga un archivo de gestión | `{ "pathGestion": "./ruta/archivo.xlsx" }` |
-| `/webhook/app_hdi_readFile/documents` | GET | Obtiene documentos de gestión | - |
-| `/webhook/app_hdi_cpToDB` | POST | Carga archivo CP | `{ "rutaCP": "./ruta/archivo.xlsx" }` |
-| `/webhook/app_hdi_tiraToDB` | POST | Carga archivos de tiras | `{ "rutaNCR": "./ruta/ncr.xlsx", "rutaDiebold": "./ruta/diebold.xlsx" }` |
-| `/webhook/app_hdi_loadFileHistorico` | POST | Carga archivo histórico | `{ "pathExcel": "./ruta/archivo.xlsx", ... }` |
+### Construir aplicación de escritorio
 
-## Flujo de Trabajo Típico
+```bash
+# En la carpeta frontend
+npm run electron:build
+```
 
-1. Inicia el servidor n8n
-2. Inicia el servidor de desarrollo del frontend
-3. Configura las rutas de los archivos en la interfaz del frontend
-4. Ejecuta las cargas de datos a través de la interfaz
-5. Visualiza y procesa los resultados
+### Iniciar backend (n8n)
 
-## Directrices para Desarrolladores
+```bash
+# En la carpeta raíz
+npm install
+npm run start-n8n
+```
 
-### Modificación de Scripts (CommonJS)
+El servidor n8n estará disponible en `http://localhost:5678`.
 
-Los scripts en `data/_scripts/` utilizan CommonJS y están configurados para procesar archivos Excel y cargarlos en MongoDB. Si necesitas modificar estos scripts:
+## Normalización de rutas
 
-1. Mantén la sintaxis CommonJS (`require()` en lugar de `import`)
-2. Utiliza rutas absolutas o funciones como `path.resolve()`
-3. Mantén las funciones de normalización existentes para limpieza de datos
+El proyecto utiliza un sistema de normalización de rutas para manejar archivos en diferentes sistemas operativos:
 
-### Modificación del Frontend (ESM)
+- `normalizePath`: Convierte rutas según el SO (Windows o Unix)
+- `encodePathForApi`: Codifica rutas para uso seguro en APIs y URLs
 
-El frontend utiliza ESM y React. Al modificar el frontend:
+Ejemplo:
+```typescript
+import { normalizePath, encodePathForApi } from '@/hooks/useElectron';
 
-1. Utiliza la sintaxis ESM (`import` en lugar de `require()`)
-2. Mantén los componentes en carpetas organizadas
-3. Las rutas de importación deben usar el alias `@/` (ej. `import Button from '@/components/ui/button'`)
+// Normalizar ruta según SO
+const normalizedPath = normalizePath('/ruta/archivo.xlsx');
 
+// Preparar para API
+const apiPath = encodePathForApi(normalizedPath);
+```
 
-## Mantenimiento
+## Estructura de archivos
 
-- **Actualización de dependencias**: Actualiza las dependencias por separado para el backend y el frontend
-- **Logs**: Revisa los logs de n8n y del frontend para detectar problemas
+```
+frontend/
+├── src/                 # Código fuente
+│   ├── components/      # Componentes React
+│   ├── hooks/           # Hooks personalizados
+│   ├── lib/             # Utilidades y API
+│   ├── styles/          # Estilos CSS
+│   └── App.tsx          # Componente principal
+├── electron/            # Archivos para Electron
+└── public/              # Archivos estáticos
+```
