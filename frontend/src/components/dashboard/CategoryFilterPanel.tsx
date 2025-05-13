@@ -64,13 +64,13 @@ const CategoryFilterPanel = ({ setFilteredDataAvailable, endpoints, initialData 
           'Content-Type': 'application/json',
         }
       });
-      
+
       if (!response.ok) {
         throw new Error(`Error al obtener documentos: ${response.status} ${response.statusText}`);
       }
-      
+
       const data = await response.json();
-      
+
       if (data && Array.isArray(data.documents)) {
         setRawData(data.documents);
         console.log(`Se han cargado ${data.documents.length} documentos de la colección`);
@@ -92,46 +92,45 @@ const CategoryFilterPanel = ({ setFilteredDataAvailable, endpoints, initialData 
       toast.error("No hay datos para filtrar. Cargue primero los documentos.");
       return;
     }
-    
+
     setLoading(true);
     setProgress(0);
-    
+
     const interval = setInterval(() => {
       setProgress(prev => {
         const newValue = prev + 5;
         return newValue > 95 ? 95 : newValue;
       });
     }, 40);
-    
+
     try {
       console.log("Aplicando filtros a los datos...");
       console.log("Datos a filtrar:", rawData);
-      
+
       // Aplicar los filtros localmente
-      const sobrantes = rawData.filter(item => 
-        item.ESTADO === "SOBRANTE" && 
-        item.REMANENTES !== 0 && 
-        item.REMANENTES !== undefined && 
+      const sobrantes = rawData.filter(item =>
+        item.ESTADO === "SOBRANTE" &&
+        item.REMANENTES !== undefined &&
         item.REMANENTES !== null
-      );
-      
-      const faltantes = rawData.filter(item => 
+      ); // item.REMANENTES !== 0 &&
+
+      const faltantes = rawData.filter(item =>
         item.ESTADO === "FALTANTE"
       );
-      
+
       console.log(`Filtrado completo: ${sobrantes.length} sobrantes, ${faltantes.length} faltantes`);
-      
+
       clearInterval(interval);
       setProgress(100);
-      
+
       setFilteredData({
         sobrantes,
         faltantes
       });
-      
+
       setFilteredDataAvailable(sobrantes.length > 0 || faltantes.length > 0);
       toast.success('Datos categorizados correctamente');
-      
+
     } catch (error) {
       console.error('Error en categorización:', error);
       clearInterval(interval);
@@ -146,12 +145,12 @@ const CategoryFilterPanel = ({ setFilteredDataAvailable, endpoints, initialData 
   const handleSelectItem = (item: GestionDocument) => {
     console.log("Item seleccionado para el agente:", item);
     toast.info(`Enviando datos de ${item["NOMBRE CAJERO"] || item["NOMBRE_CAJERO"] || "ATM"} al agente`);
-    
+
     if (onItemSelect) {
       onItemSelect(item);
     } else {
       // Navigate to the agent evaluator page with selected item data
-      navigate('/agente/task_evaluate_differences', { 
+      navigate('/agente/task_evaluate_differences', {
         state: { selectedItem: item }
       });
     }
@@ -189,8 +188,8 @@ const CategoryFilterPanel = ({ setFilteredDataAvailable, endpoints, initialData 
               </div>
             </div>
             <div className="flex gap-2">
-              <Button 
-                onClick={fetchRawData} 
+              <Button
+                onClick={fetchRawData}
                 disabled={fetchingData}
                 className="bg-blue-800 hover:bg-blue-700 text-white flex items-center gap-2"
                 variant="outline"
@@ -207,8 +206,8 @@ const CategoryFilterPanel = ({ setFilteredDataAvailable, endpoints, initialData 
                   </>
                 )}
               </Button>
-              <Button 
-                onClick={handleExecuteFilter} 
+              <Button
+                onClick={handleExecuteFilter}
                 disabled={loading || rawData.length === 0}
                 className="bg-blue-700 hover:bg-blue-600 text-white flex items-center gap-2"
               >
@@ -226,7 +225,7 @@ const CategoryFilterPanel = ({ setFilteredDataAvailable, endpoints, initialData 
               </Button>
             </div>
           </div>
-          
+
           {loading && (
             <div className="mb-6">
               <Progress value={progress} className="h-2 mb-2 bg-blue-900" />
@@ -271,9 +270,9 @@ const CategoryFilterPanel = ({ setFilteredDataAvailable, endpoints, initialData 
                         <TableCell className="text-green-400 font-mono">{item["SOBRANTE"] || "-"}</TableCell>
                         <TableCell className="text-blue-100">{item["RESPONSABLE"] || "-"}</TableCell>
                         <TableCell className="text-right">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
+                          <Button
+                            variant="outline"
+                            size="sm"
                             className="bg-blue-900/50 border-blue-700/50 hover:bg-blue-800/50 text-blue-300"
                             onClick={() => handleSelectItem(item)}
                           >
@@ -309,9 +308,9 @@ const CategoryFilterPanel = ({ setFilteredDataAvailable, endpoints, initialData 
                         <TableCell className="text-red-400 font-mono">{item["FALTANTE"] || "-"}</TableCell>
                         <TableCell className="text-blue-100">{item["RESPONSABLE"] || "-"}</TableCell>
                         <TableCell className="text-right">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
+                          <Button
+                            variant="outline"
+                            size="sm"
                             className="bg-blue-900/50 border-blue-700/50 hover:bg-blue-800/50 text-blue-300"
                             onClick={() => handleSelectItem(item)}
                           >
@@ -334,8 +333,8 @@ const CategoryFilterPanel = ({ setFilteredDataAvailable, endpoints, initialData 
             <p className="text-blue-400 max-w-md mx-auto mb-6">
               Ejecute la categorización para visualizar los resultados según los criterios definidos.
             </p>
-            <Button 
-              onClick={handleExecuteFilter} 
+            <Button
+              onClick={handleExecuteFilter}
               disabled={loading || rawData.length === 0}
               className="bg-blue-700 hover:bg-blue-600 text-white"
             >

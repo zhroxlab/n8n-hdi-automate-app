@@ -145,9 +145,9 @@ const AgentExecutionPanel = ({ endpoints, selectedItem }: AgentExecutionPanelPro
 
       const filteredData = processedData.filter(item => {
         const jsonData = item.jsonData;
-        return (jsonData["ESTADO"] === "SOBRANTE" && jsonData["REMANENTES"] !== 0) ||
-               jsonData["ESTADO"] === "FALTANTE";
-      });
+        return (
+            jsonData["ESTADO"] === "SOBRANTE" || jsonData["ESTADO"] === "FALTANTE");
+      }); // jsonData["REMANENTES"] !== 0)
 
       console.log('Registros filtrados según criterios de categorización:', filteredData.length);
 
